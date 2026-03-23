@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowCRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-base: #070a0f;
+            --bg-surface: #0d1117;
+            --bg-surface-hover: #161d27;
+            --bg-elevated: #1a2233;
+            --border-color: #1e2d42;
+            --border-focus: #2a4060;
+            --color-primary: #00d4ff;
+            --color-primary-hover: #00b8e0;
+            --color-primary-light: rgba(0,212,255,0.08);
+            --color-accent: #ff6b35;
+            --color-accent-hover: #e55a28;
+            --color-success: #00e676;
+            --color-danger: #ff3d57;
+            --color-warning: #ffb300;
+            --color-purple: #9b59ff;
+            --color-admin: #ff6b35;
+            --text-main: #e8f0fe;
+            --text-muted: #7a9ab8;
+            --text-dim: #3d5a78;
+            --font-heading: 'Syne', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --radius-full: 9999px;
+            --spacing-2: 6px;
+            --spacing-3: 10px;
+            --spacing-4: 12px;
+            --spacing-5: 16px;
+            --spacing-6: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.4);
+            --shadow-xl: 0 24px 48px rgba(0,0,0,0.7), 0 8px 16px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 24px rgba(0,212,255,0.12);
+            --shadow-glow-accent: 0 0 24px rgba(255,107,53,0.2);
+            --transition-fast: 0.12s cubic-bezier(0.4,0,0.2,1);
+            --transition-base: 0.18s cubic-bezier(0.4,0,0.2,1);
+            --transition-smooth: 0.28s cubic-bezier(0.4,0,0.2,1);
+            --transition-bounce: 0.38s cubic-bezier(0.175,0.885,0.32,1.275);
+            font-size: 13px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-body); background: var(--bg-base); color: var(--text-main); line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,212,255,0.04) 0%, transparent 70%); }
+        h1,h2,h3,h4,h5,h6 { font-family: var(--font-heading); font-weight: 700; color: var(--text-main); letter-spacing: -0.01em; line-height: 1.2; }
+        a { color: var(--color-primary); text-decoration: none; transition: color var(--transition-fast); }
+        a:hover { color: var(--color-primary-hover); }
+        ul { list-style: none; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: var(--radius-full); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-focus); }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes slideInRight { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        /* ── LAYOUT ── */
+        .view { display:none; min-height:100vh; }
+        .view.active { display:flex; animation:fadeIn .3s ease-out forwards; }
+
+        /* ── AUTH ── */
+        #auth-view { justify-content:center; align-items:center; padding:16px; background: var(--bg-base); background-image: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(0,212,255,0.07) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 80%, rgba(255,107,53,0.05) 0%, transparent 60%); }
+        .auth-card { background: linear-gradient(160deg, rgba(13,17,23,0.95) 0%, rgba(10,14,20,0.98) 100%); padding:36px; border-radius:var(--radius-xl); width:100%; max-width:380px; box-shadow:var(--shadow-xl),var(--shadow-glow); border:1px solid var(--border-color); animation:slideUp .5s ease-out forwards; position:relative; overflow:hidden; }
+        .auth-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--color-primary),transparent); }
+        .auth-card::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(0,212,255,0.04) 0%, transparent 60%); pointer-events:none; }
+        .auth-header { text-align:center; margin-bottom:28px; }
+        .auth-header h1 { font-size:1.8rem; color: var(--color-primary); display:flex; align-items:center; justify-content:center; gap:10px; letter-spacing:-0.02em; }
+        .auth-header p { color:var(--text-muted); margin-top:8px; font-size:.88rem; font-weight:400; }
+        .auth-notice { margin-top:18px; padding:10px 14px; background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.15); border-radius:var(--radius-sm); font-size:.78rem; color:var(--text-muted); display:flex; align-items:center; gap:8px; }
+
+        /* ── APP LAYOUT ── */
+        #app-view { display:flex; width:100%; height:100vh; overflow:hidden; }
+        #app-view.active { display:flex; }
+
+        /* ── SIDEBAR ── */
+        aside#sidebar { width:220px; background: var(--bg-surface); border-right:1px solid var(--border-color); display:flex; flex-direction:column; transition:transform var(--transition-smooth); z-index:50; flex-shrink:0; }
+        .brand { padding:18px 16px; font-size:1.25rem; font-family:var(--font-heading); font-weight:800; color: var(--color-primary); border-bottom:1px solid var(--border-color); display:flex; align-items:center; gap:10px; letter-spacing:-0.02em; text-shadow: 0 0 30px rgba(0,212,255,0.4); }
+        .nav-section-label { font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim); font-weight:700; padding:14px 16px 4px; font-family:var(--font-body); }
+        .nav-links { flex:1; padding:8px 0; overflow-y:auto; }
+        .nav-item { display:flex; align-items:center; gap:9px; padding:8px 12px; color:var(--text-muted); cursor:pointer; transition:all var(--transition-base); margin:1px 8px; border-radius:var(--radius-sm); font-weight:500; position:relative; font-size:.88rem; border:1px solid transparent; background:none; width:calc(100% - 16px); text-align:left; }
+        .nav-item i { font-size:1.05rem; transition:transform var(--transition-base); flex-shrink:0; }
+        .nav-item:hover { background:var(--bg-elevated); color:var(--text-main); }
+        .nav-item.active { background: rgba(0,212,255,0.08); color:var(--color-primary); border: 1px solid rgba(0,212,255,0.15); }
+        .nav-item.admin-nav { color:var(--color-accent); }
+        .nav-item.admin-nav.active { background:rgba(255,107,53,0.08); color:var(--color-accent); border: 1px solid rgba(255,107,53,0.2); }
+        .nav-divider { height:1px; background:var(--border-color); margin:6px 12px; }
+        .user-profile { padding:12px 14px; border-top:1px solid var(--border-color); display:flex; align-items:center; gap:10px; }
+        .avatar { width:32px; height:32px; border-radius:var(--radius-sm); background: linear-gradient(135deg, rgba(0,212,255,0.2) 0%, rgba(0,160,200,0.3) 100%); border: 1px solid rgba(0,212,255,0.3); color:var(--color-primary); display:flex; justify-content:center; align-items:center; font-weight:bold; font-family:var(--font-heading); font-size:.85rem; flex-shrink:0; }
+        .avatar.admin-avatar { background: linear-gradient(135deg, rgba(255,107,53,0.2) 0%, rgba(200,80,30,0.3) 100%); border: 1px solid rgba(255,107,53,0.3); color:var(--color-accent); }
+        .user-info { flex:1; overflow:hidden; }
+        .user-name { font-weight:600; font-size:.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .user-role-badge { font-size:.65rem; padding:1px 7px; border-radius:var(--radius-full); font-weight:600; display:inline-block; margin-top:2px; }
+        .user-role-badge.admin { background:rgba(255,107,53,.12); color:var(--color-accent); border:1px solid rgba(255,107,53,.25); }
+        .user-role-badge.user { background:rgba(0,212,255,.08); color:var(--color-primary); border:1px solid rgba(0,212,255,.2); }
+
+        /* ── MAIN CONTENT ── */
+        main#main-content { flex:1; display:flex; flex-direction:column; height:100vh; overflow:hidden; background:var(--bg-base); }
+        .topbar-mobile { display:none; padding:10px 14px; background:rgba(10,14,20,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--border-color); align-items:center; justify-content:space-between; z-index:40; }
+        .page-container { flex:1; overflow-y:auto; padding:20px; }
+        .page { display:none; }
+        .page.active { display:block; animation:fadeIn .3s ease-out; }
+
+        /* ── PAGE HEADER ── */
+        .page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:12px; }
+        .page-header h2 { font-size:1.4rem; letter-spacing:-0.02em; }
+        .page-header p { color:var(--text-muted); font-size:.84rem; margin-top:3px; font-weight:400; }
+        .page-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+        /* ── BUTTONS ── */
+        .btn { padding:7px 15px; border:none; border-radius:var(--radius-sm); cursor:pointer; font-weight:600; font-size:.82rem; transition:all var(--transition-base); display:inline-flex; align-items:center; gap:6px; position:relative; overflow:hidden; font-family:var(--font-body); white-space:nowrap; }
+        .btn:active { transform:scale(.97); }
+        .btn:disabled { opacity:.4; cursor:not-allowed; pointer-events:none; }
+        .btn-primary { background: rgba(0,212,255,0.12); color:var(--color-primary); border: 1px solid rgba(0,212,255,0.3); }
+        .btn-primary:hover { background: rgba(0,212,255,0.2); border-color: rgba(0,212,255,0.5); box-shadow: 0 0 16px rgba(0,212,255,0.15); }
+        .btn-secondary { background:var(--bg-elevated); color:var(--text-main); border:1px solid var(--border-color); }
+        .btn-secondary:hover { background:var(--bg-surface-hover); border-color:var(--border-focus); }
+        .btn-accent { background: rgba(255,107,53,0.12); color:var(--color-accent); border: 1px solid rgba(255,107,53,0.3); }
+        .btn-accent:hover { background: rgba(255,107,53,0.22); border-color: rgba(255,107,53,0.5); box-shadow: 0 0 16px rgba(255,107,53,0.15); }
+        .btn-danger { background: rgba(255,61,87,0.1); color:var(--color-danger); border: 1px solid rgba(255,61,87,0.3); }
+        .btn-danger:hover { background: rgba(255,61,87,0.2); border-color: rgba(255,61,87,0.5); }
+        .btn-success { background: rgba(0,230,118,0.1); color:var(--color-success); border: 1px solid rgba(0,230,118,0.25); }
+        .btn-success:hover { background: rgba(0,230,118,0.18); border-color: rgba(0,230,118,0.4); }
+        .btn-outline { background:transparent; color:var(--text-muted); border:1px solid var(--border-color); }
+        .btn-outline:hover { border-color:var(--border-focus); color:var(--text-main); background:var(--bg-elevated); }
+        .btn-ghost { background:transparent; color:var(--text-muted); border:none; padding:5px 8px; }
+        .btn-ghost:hover { background:var(--bg-elevated); color:var(--text-main); }
+        .btn-sm { padding:5px 11px; font-size:.78rem; }
+        .btn-xs { padding:3px 8px; font-size:.73rem; }
+        .icon-btn { background:var(--bg-elevated); border:1px solid var(--border-color); color:var(--text-muted); padding:6px; width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); cursor:pointer; transition:all var(--transition-base); font-size:1rem; }
+        .icon-btn:hover { background:var(--bg-surface-hover); color:var(--text-main); border-color:var(--border-focus); }
+        #mobile-menu-btn { background:var(--bg-elevated); border:1px solid var(--border-color); color:var(--text-main); padding:8px; border-radius:var(--radius-sm); cursor:pointer; transition:all var(--transition-base); }
+
+        /* ── FORMS ── */
+        .input-group { margin-bottom:14px; }
+        .input-group:last-child { margin-bottom:0; }
+        label { display:block; margin-bottom:5px; color:var(--text-muted); font-weight:500; font-size:.82rem; text-transform:uppercase; letter-spacing:0.04em; }
+        label .req { color:var(--color-danger); margin-left:2px; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select, textarea {
+            width:100%; padding:9px 12px; background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-main); font-size:.87rem; transition:all var(--transition-base); font-family:var(--font-body);
+        }
+        input:focus, select:focus, textarea:focus { outline:none; border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.03); box-shadow:0 0 0 3px rgba(0,212,255,0.08); }
+        input::placeholder, textarea::placeholder { color:var(--text-dim); }
+        textarea { min-height:90px; resize:vertical; }
+        input[readonly], textarea[readonly] { background:var(--bg-base) !important; color:var(--text-dim) !important; cursor:not-allowed; opacity:.75; }
+        input[readonly]:focus, textarea[readonly]:focus { border-color:var(--border-color) !important; box-shadow:none !important; }
+        .form-row { display:flex; gap:14px; }
+        .form-row .input-group { flex:1; }
+        .field-hint { font-size:.75rem; color:var(--text-dim); margin-top:4px; display:flex; align-items:center; gap:4px; }
+
+        /* ── SEARCH ── */
+        .search-wrap { position:relative; }
+        .search-wrap input { padding-left:36px; }
+        .search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:1rem; pointer-events:none; }
+
+        /* ── CARDS ── */
+        .card { background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; transition:all var(--transition-base); }
+        .card:hover { border-color:var(--border-focus); }
+        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-color); }
+        .card-title { font-size:.95rem; font-weight:700; display:flex; align-items:center; gap:8px; font-family:var(--font-heading); }
+
+        /* ── STAT CARDS ── */
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+        .stat-card { background: var(--bg-surface); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border-color); transition:all var(--transition-base); position:relative; overflow:hidden; }
+        .stat-card::after { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:50%; opacity:0.06; transition:opacity var(--transition-base); transform:translate(20px,-20px); }
+        .stat-card:hover { border-color:var(--border-focus); transform:translateY(-2px); }
+        .stat-card:hover::after { opacity:0.12; }
+        .stat-card.blue::after { background:var(--color-primary); }
+        .stat-card.green::after { background:var(--color-success); }
+        .stat-card.amber::after { background:var(--color-warning); }
+        .stat-card.red::after { background:var(--color-danger); }
+        .stat-card.purple::after { background:var(--color-purple); }
+        .stat-icon { width:36px; height:36px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:1.1rem; margin-bottom:12px; }
+        .stat-icon.blue { background:rgba(0,212,255,.1); color:var(--color-primary); border:1px solid rgba(0,212,255,.15); }
+        .stat-icon.green { background:rgba(0,230,118,.1); color:var(--color-success); border:1px solid rgba(0,230,118,.15); }
+        .stat-icon.amber { background:rgba(255,179,0,.1); color:var(--color-warning); border:1px solid rgba(255,179,0,.15); }
+        .stat-icon.red { background:rgba(255,61,87,.1); color:var(--color-danger); border:1px solid rgba(255,61,87,.15); }
+        .stat-icon.purple { background:rgba(155,89,255,.1); color:var(--color-purple); border:1px solid rgba(155,89,255,.15); }
+        .stat-card h3 { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); font-weight:600; margin-bottom:5px; font-family:var(--font-body); }
+        .stat-card .value { font-size:1.9rem; font-weight:800; font-family:var(--font-heading); color:var(--text-main); line-height:1.1; }
+
+        /* ── TABLES ── */
+        .table-wrap { background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:hidden; }
+        table { width:100%; border-collapse:collapse; table-layout:auto; }
+        thead { background:var(--bg-elevated); position:sticky; top:0; z-index:10; }
+        th { padding:10px 14px; text-align:left; font-weight:600; font-size:.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.07em; border-bottom:1px solid var(--border-color); white-space:nowrap; font-family:var(--font-body); }
+        td { padding:9px 14px; border-bottom:1px solid var(--border-color); font-size:.84rem; vertical-align:middle; }
+        tr:last-child td { border-bottom:none; }
+        tbody tr { transition:background var(--transition-fast); }
+        tbody tr:hover { background:var(--bg-surface-hover); }
+        .td-actions { text-align:right; white-space:nowrap; }
+        .td-actions-inner { display:inline-flex; gap:4px; align-items:center; justify-content:flex-end; }
+        .empty-state { text-align:center; padding:48px 20px; color:var(--text-muted); font-size:.88rem; }
+        .empty-state i { font-size:2.2rem; display:block; margin-bottom:10px; opacity:.25; }
+
+        /* ── STATUS BADGES ── */
+        .badge { display:inline-flex; align-items:center; padding:2px 9px; border-radius:var(--radius-full); font-size:.7rem; font-weight:600; letter-spacing:.03em; white-space:nowrap; }
+        .badge-blue { background:rgba(0,212,255,.1); color:var(--color-primary); border:1px solid rgba(0,212,255,.2); }
+        .badge-amber { background:rgba(255,179,0,.1); color:var(--color-warning); border:1px solid rgba(255,179,0,.2); }
+        .badge-purple { background:rgba(155,89,255,.1); color:var(--color-purple); border:1px solid rgba(155,89,255,.2); }
+        .badge-green { background:rgba(0,230,118,.1); color:var(--color-success); border:1px solid rgba(0,230,118,.2); }
+        .badge-red { background:rgba(255,61,87,.1); color:var(--color-danger); border:1px solid rgba(255,61,87,.2); }
+        .badge-gray { background:rgba(122,154,184,.08); color:var(--text-muted); border:1px solid rgba(122,154,184,.15); }
+        .status-New { background:rgba(0,212,255,.1); color:var(--color-primary); border:1px solid rgba(0,212,255,.2); }
+        .status-Contacted { background:rgba(255,179,0,.1); color:var(--color-warning); border:1px solid rgba(255,179,0,.2); }
+        .status-Qualified { background:rgba(155,89,255,.1); color:var(--color-purple); border:1px solid rgba(155,89,255,.2); }
+        .status-Won { background:rgba(0,230,118,.1); color:var(--color-success); border:1px solid rgba(0,230,118,.2); }
+        .status-Lost { background:rgba(255,61,87,.1); color:var(--color-danger); border:1px solid rgba(255,61,87,.2); }
+        .status-Call\ Back { background:rgba(0,212,200,.1); color:#00d4c8; border:1px solid rgba(0,212,200,.2); }
+
+        /* ── PIPELINE / KANBAN ── */
+        .pipeline-board { display:flex; gap:12px; overflow-x:auto; padding-bottom:16px; height:calc(100vh - 200px); align-items:flex-start; }
+        .kanban-column { flex:0 0 248px; background: var(--bg-surface); border-radius:var(--radius-md); border:1px solid var(--border-color); display:flex; flex-direction:column; max-height:100%; transition:all var(--transition-base); }
+        .kanban-header { padding:10px 12px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; }
+        .kanban-header h3 { font-size:.82rem; font-weight:700; font-family:var(--font-heading); }
+        .kanban-count { background:var(--bg-elevated); color:var(--text-muted); padding:2px 9px; border-radius:var(--radius-full); font-size:.7rem; font-weight:700; border:1px solid var(--border-color); }
+        .kanban-cards { padding:10px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; min-height:100px; transition:background var(--transition-base); }
+        .kanban-column.drag-over .kanban-cards { background:rgba(0,212,255,0.04); border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+        .kanban-card { background:var(--bg-elevated); border:1px solid var(--border-color); padding:10px; border-radius:var(--radius-sm); cursor:grab; transition:all var(--transition-base); animation:fadeIn .3s ease-out; position:relative; }
+        .kanban-card:hover { transform:translateY(-2px); border-color:var(--border-focus); box-shadow:var(--shadow-md); }
+        .kanban-card:active { cursor:grabbing; transform:scale(.98); }
+        .kanban-card-title { font-weight:600; font-size:.86rem; margin-bottom:2px; }
+        .kanban-card-company { font-size:.76rem; color:var(--text-muted); margin-bottom:8px; }
+        .kanban-card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:1px solid var(--border-color); font-size:.72rem; color:var(--text-muted); }
+
+        /* ── MODALS ── */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(6px); display:flex; justify-content:center; align-items:center; z-index:1000; opacity:0; pointer-events:none; transition:opacity var(--transition-smooth); padding:16px; }
+        .modal-overlay.active { opacity:1; pointer-events:auto; }
+        /* Upload leads modal sits above user-leads-modal */
+        #upload-leads-modal { z-index:1100; }
+        .modal { background: var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-lg); width:100%; max-width:500px; box-shadow:var(--shadow-xl); transform:translateY(12px) scale(.98); transition:transform var(--transition-bounce); position:relative; overflow:hidden; max-height:90vh; display:flex; flex-direction:column; }
+        .modal::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--color-primary),transparent); z-index:1; }
+        .modal-overlay.active .modal { transform:translateY(0) scale(1); }
+        .modal-header { padding:16px 18px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+        .modal-header h2 { font-size:1rem; display:flex; align-items:center; gap:8px; font-family:var(--font-heading); font-weight:700; }
+        .modal-body { padding:18px; overflow-y:auto; flex:1; }
+        .modal-footer { padding:12px 18px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:8px; border-radius:0 0 var(--radius-lg) var(--radius-lg); flex-shrink:0; }
+        .modal-lg { max-width:680px; }
+        .modal-sm { max-width:420px; }
+
+        /* ── CONFIRM MODAL ── */
+        .confirm-modal { max-width:400px; }
+        .confirm-modal .modal-header { border-bottom:none; justify-content:center; padding-bottom:6px; }
+        .confirm-modal .modal-header h2 { color:var(--color-warning); }
+        .confirm-modal .modal-body { text-align:center; }
+        .confirm-modal .modal-body p { font-size:.95rem; line-height:1.65; color:var(--text-muted); }
+        .confirm-modal .modal-footer { border-top:none; justify-content:center; padding-top:0; }
+
+        /* ── SIDE PANEL ── */
+        #contact-detail-panel { position:fixed; top:0; right:-400px; width:370px; height:100vh; background: var(--bg-surface); border-left:1px solid var(--border-color); box-shadow:-12px 0 40px rgba(0,0,0,.6); z-index:100; transition:right var(--transition-smooth); display:flex; flex-direction:column; }
+        #contact-detail-panel.open { right:0; }
+        .panel-header { padding:16px 18px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; }
+        .panel-content { padding:18px; flex:1; overflow-y:auto; }
+        .detail-group { margin-bottom:16px; }
+        .detail-label { font-size:.68rem; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px; font-weight:600; letter-spacing:.07em; font-family:var(--font-body); }
+        .detail-value { font-size:.87rem; color:var(--text-main); padding:9px 12px; background:var(--bg-elevated); border-radius:var(--radius-sm); border:1px solid var(--border-color); }
+
+        /* ── TOASTS ── */
+        #toast-container { position:fixed; bottom:24px; right:24px; z-index:1200; display:flex; flex-direction:column; gap:8px; }
+        .toast { background:var(--bg-elevated); border-left:3px solid var(--color-primary); color:var(--text-main); padding:10px 16px; border-radius:var(--radius-sm); box-shadow:var(--shadow-xl); min-width:260px; display:flex; align-items:center; gap:10px; animation:slideInRight var(--transition-bounce) forwards; font-weight:500; font-size:.82rem; border:1px solid var(--border-color); border-left-width:3px; }
+        .toast.success { border-left-color:var(--color-success); }
+        .toast.error { border-left-color:var(--color-danger); }
+        .toast.warning { border-left-color:var(--color-warning); }
+        .toast-fade-out { animation:fadeIn var(--transition-smooth) ease-in reverse forwards; }
+
+        /* ── ADMIN PANEL ── */
+        .admin-banner { display:flex; align-items:center; gap:10px; padding:10px 16px; background:rgba(255,107,53,.06); border:1px solid rgba(255,107,53,.2); border-radius:var(--radius-md); margin-bottom:18px; font-size:.84rem; color:var(--color-accent); }
+        .admin-tabs { display:flex; gap:2px; border-bottom:1px solid var(--border-color); margin-bottom:20px; overflow-x:auto; }
+        .admin-tab { padding:9px 16px; border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-family:var(--font-body); font-size:.84rem; font-weight:500; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all var(--transition-base); display:flex; align-items:center; gap:7px; white-space:nowrap; }
+        .admin-tab:hover { color:var(--text-main); }
+        .admin-tab.active { color:var(--color-accent); border-bottom-color:var(--color-accent); }
+        .tab-pane { display:none; animation:fadeIn .25s ease-out; }
+        .tab-pane.active { display:block; }
+        .admin-overview-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+
+        /* Admin Overview Activity Log */
+        .activity-log { background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:hidden; }
+        .activity-item { display:flex; align-items:flex-start; gap:12px; padding:10px 16px; border-bottom:1px solid rgba(30,45,66,0.5); font-size:.82rem; transition:background var(--transition-fast); }
+        .activity-item:last-child { border-bottom:none; }
+        .activity-item:hover { background:rgba(0,212,255,0.02); }
+        .activity-icon { width:26px; height:26px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:.85rem; flex-shrink:0; }
+        .activity-text { flex:1; }
+        .activity-time { font-size:.7rem; color:var(--text-dim); margin-top:2px; }
+
+        /* User status toggle */
+        .toggle-wrap { display:flex; align-items:center; gap:8px; }
+        .toggle { width:34px; height:18px; background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:var(--radius-full); position:relative; cursor:pointer; transition:background var(--transition-base); flex-shrink:0; }
+        .toggle.on { background:rgba(0,230,118,0.25); border-color:rgba(0,230,118,0.4); }
+        .toggle::after { content:''; position:absolute; top:2px; left:2px; width:12px; height:12px; background:var(--text-dim); border-radius:50%; transition:transform var(--transition-base); }
+        .toggle.on::after { transform:translateX(16px); background:var(--color-success); }
+
+        /* Inline editable cell */
+        .editable-cell { cursor:pointer; }
+        .editable-cell:hover { color:var(--color-primary); text-decoration:underline; }
+
+        /* Password strength */
+        .pwd-strength { height:2px; border-radius:2px; margin-top:6px; transition:all .3s; background:var(--border-color); }
+        .pwd-strength.weak { background:var(--color-danger); width:33%; }
+        .pwd-strength.medium { background:var(--color-warning); width:66%; }
+        .pwd-strength.strong { background:var(--color-success); width:100%; }
+
+        /* ── ACTIVITY-COLOR helpers ── */
+        .act-blue { background:rgba(0,212,255,.1); color:var(--color-primary); }
+        .act-green { background:rgba(0,230,118,.1); color:var(--color-success); }
+        .act-red { background:rgba(255,61,87,.1); color:var(--color-danger); }
+        .act-amber { background:rgba(255,179,0,.1); color:var(--color-warning); }
+        .act-purple { background:rgba(155,89,255,.1); color:var(--color-purple); }
+
+        /* ── LIGHT MODE ── */
+        body.light {
+            --bg-base: #f0f4f8;
+            --bg-surface: #ffffff;
+            --bg-surface-hover: #f7f9fc;
+            --bg-elevated: #edf1f7;
+            --border-color: #d0dae8;
+            --border-focus: #a8bcd4;
+            --color-primary: #0099cc;
+            --color-primary-hover: #007aaa;
+            --color-primary-light: rgba(0,153,204,0.1);
+            --color-accent: #e85c2a;
+            --color-accent-hover: #c94a1e;
+            --color-success: #00a854;
+            --color-danger: #e8003a;
+            --color-warning: #cc8800;
+            --color-purple: #6b35e8;
+            --color-admin: #e85c2a;
+            --text-main: #0f1c2e;
+            --text-muted: #4a6080;
+            --text-dim: #8aa0ba;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08);
+            --shadow-xl: 0 24px 48px rgba(0,0,0,0.14), 0 8px 16px rgba(0,0,0,0.08);
+            --shadow-glow: 0 0 24px rgba(0,153,204,0.1);
+        }
+        body.light { background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,153,204,0.05) 0%, transparent 70%); }
+        body.light .auth-card { background: #fff; }
+        body.light .auth-card::after { display:none; }
+        body.light input[type="text"], body.light input[type="email"],
+        body.light input[type="password"], body.light input[type="tel"],
+        body.light select, body.light textarea { background:var(--bg-elevated); border-color:var(--border-color); color:var(--text-main); }
+        body.light .modal { background:var(--bg-surface); }
+        body.light #contact-detail-panel { background:var(--bg-surface); }
+        body.light aside#sidebar { background:var(--bg-surface); }
+        body.light .toast { background:var(--bg-surface); color:var(--text-main); border-color:var(--border-color); }
+        body.light thead { background:var(--bg-elevated); }
+        body.light tbody tr:hover { background:var(--bg-surface-hover); }
+        body.light .kanban-column { background:var(--bg-surface); }
+        body.light .kanban-card { background:var(--bg-elevated); }
+        body.light .stat-icon.blue { background:rgba(0,153,204,.1); border-color:rgba(0,153,204,.18); }
+        body.light .stat-icon.green { background:rgba(0,168,84,.1); border-color:rgba(0,168,84,.18); }
+        body.light .stat-icon.amber { background:rgba(204,136,0,.1); border-color:rgba(204,136,0,.18); }
+        body.light .stat-icon.red { background:rgba(232,0,58,.1); border-color:rgba(232,0,58,.18); }
+        body.light .stat-icon.purple { background:rgba(107,53,232,.1); border-color:rgba(107,53,232,.18); }
+        body.light .badge-blue, body.light .status-New { background:rgba(0,153,204,.1); color:var(--color-primary); border-color:rgba(0,153,204,.22); }
+        body.light .badge-green, body.light .status-Won { background:rgba(0,168,84,.1); color:var(--color-success); border-color:rgba(0,168,84,.22); }
+        body.light .badge-red, body.light .status-Lost { background:rgba(232,0,58,.1); color:var(--color-danger); border-color:rgba(232,0,58,.22); }
+        body.light .badge-amber, body.light .status-Contacted { background:rgba(204,136,0,.1); color:var(--color-warning); border-color:rgba(204,136,0,.22); }
+        body.light .badge-purple, body.light .status-Qualified { background:rgba(107,53,232,.1); color:var(--color-purple); border-color:rgba(107,53,232,.22); }
+        body.light .status-Call\ Back { background:rgba(0,180,160,.1); color:#00897b; border-color:rgba(0,180,160,.22); }
+        body.light .badge-gray { background:rgba(74,96,128,.08); color:var(--text-muted); border-color:rgba(74,96,128,.18); }
+        body.light .nav-item.active { background:rgba(0,153,204,.1); border-color:rgba(0,153,204,.2); }
+        body.light .nav-item.admin-nav.active { background:rgba(232,92,42,.1); border-color:rgba(232,92,42,.2); }
+        body.light .admin-banner { background:rgba(232,92,42,.06); border-color:rgba(232,92,42,.18); }
+        body.light .btn-primary { background:rgba(0,153,204,.12); border-color:rgba(0,153,204,.3); }
+        body.light .btn-primary:hover { background:rgba(0,153,204,.22); border-color:rgba(0,153,204,.5); }
+        body.light .btn-accent { background:rgba(232,92,42,.1); border-color:rgba(232,92,42,.28); }
+        body.light .btn-accent:hover { background:rgba(232,92,42,.2); border-color:rgba(232,92,42,.45); }
+        body.light .btn-success { background:rgba(0,168,84,.1); border-color:rgba(0,168,84,.25); }
+        body.light .btn-danger { background:rgba(232,0,58,.08); border-color:rgba(232,0,58,.25); }
+        body.light .act-blue { background:rgba(0,153,204,.1); color:var(--color-primary); }
+        body.light .act-green { background:rgba(0,168,84,.1); color:var(--color-success); }
+        body.light .act-red { background:rgba(232,0,58,.1); color:var(--color-danger); }
+        body.light .act-amber { background:rgba(204,136,0,.1); color:var(--color-warning); }
+        body.light .act-purple { background:rgba(107,53,232,.1); color:var(--color-purple); }
+        body.light select option { background:var(--bg-surface); color:var(--text-main); }
+        body.light .table-wrap { background:var(--bg-surface); }
+        body.light td { border-bottom-color:var(--border-color); }
+        body.light .card { background:var(--bg-surface); }
+        body.light .kanban-count { background:var(--bg-elevated); color:var(--text-muted); }
+        body.light .detail-value { background:var(--bg-elevated); }
+        body.light .nav-item:hover { background:var(--bg-elevated); }
+        body.light .icon-btn { background:var(--bg-elevated); border-color:var(--border-color); }
+        body.light .icon-btn:hover { background:var(--bg-surface-hover); }
+        body.light .theme-toggle { background:var(--bg-elevated); border-color:var(--border-color); }
+        body.light .modal-footer { background:var(--bg-surface); }
+        body.light .modal-header { background:var(--bg-surface); }
+        body.light #delete-by-status-menu { background:var(--bg-surface); }
+        body.light .admin-tab:hover { background:rgba(0,0,0,.03); }
+        body.light .auth-header h1 { color:var(--color-primary); }
+        body.light .brand { color:var(--color-primary); text-shadow:none; }
+        body.light .auth-notice { background:rgba(0,153,204,.05); border-color:rgba(0,153,204,.15); }
+        body.light #auth-view { background-color:var(--bg-base); }
+
+        /* ── THEME TOGGLE ── */
+        .theme-toggle { background:var(--bg-elevated); border:1px solid var(--border-color); color:var(--text-muted); padding:5px 8px; width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); cursor:pointer; transition:all var(--transition-base); font-size:1rem; flex-shrink:0; }
+        .theme-toggle:hover { background:var(--bg-surface-hover); color:var(--text-main); border-color:var(--border-focus); }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:1200px){ .stats-grid{grid-template-columns:repeat(2,1fr);} .admin-overview-grid{grid-template-columns:repeat(2,1fr);} }
+        @media(max-width:768px){
+            aside#sidebar { position:fixed; height:100vh; transform:translateX(-100%); z-index:100; }
+            aside#sidebar.open { transform:translateX(0); }
+            main#main-content { margin-left:0; }
+            .topbar-mobile { display:flex; }
+            .page-header { flex-direction:column; align-items:flex-start; }
+            #contact-detail-panel { width:100%; right:-100%; }
+            .stats-grid { grid-template-columns:1fr 1fr; }
+            .admin-overview-grid { grid-template-columns:1fr; }
+            .form-row { flex-direction:column; gap:0; }
+            .pipeline-board { height:auto; min-height:calc(100vh - 220px); }
+        }
+        @media(max-width:480px){
+            .stats-grid { grid-template-columns:1fr; }
+            .page-container { padding:12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTH VIEW REMOVED FOR DEMO -->
+
+<!-- ══════════════════════════════════════
+     APP VIEW
+══════════════════════════════════════ -->
+<div id="app-view" class="view active">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+        <div class="brand"><i class="ph-fill ph-lightning"></i> FlowCRM</div>
+        <nav class="nav-links">
+            <div class="nav-section-label" id="user-nav-section">Main</div>
+            <button class="nav-item active" data-target="dashboard" id="nav-dashboard"><i class="ph ph-squares-four"></i> Dashboard</button>
+            <button class="nav-item" data-target="contacts" id="nav-contacts"><i class="ph ph-users"></i> Contacts</button>
+            <button class="nav-item" data-target="pipeline" id="nav-pipeline"><i class="ph ph-kanban"></i> Pipeline</button>
+            <div class="nav-divider" id="admin-nav-divider" style="display:none;"></div>
+            <div class="nav-section-label" id="admin-nav-section" style="display:none;">Administration</div>
+            <button class="nav-item admin-nav" data-target="admin" id="admin-nav-btn" style="display:none;"><i class="ph ph-shield-check"></i> Control Panel</button>
+        </nav>
+        <div class="user-profile">
+            <div class="avatar" id="user-avatar-initial">U</div>
+            <div class="user-info">
+                <div class="user-name" id="user-display-email"></div>
+                <span class="user-role-badge user" id="user-role-badge">User</span>
+            </div>
+            <button class="theme-toggle" id="theme-toggle-btn" title="Toggle light/dark mode"><i class="ph ph-sun" id="theme-icon"></i></button>
+            <button class="icon-btn" id="panel-switch-btn" title="Switch panel" onclick="DemoSwitch.toggle()" style="display:none;"></button>
+            <button class="icon-btn" id="logout-btn" title="Sign out" style="display:none;"><i class="ph ph-sign-out"></i></button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="main-content">
+        <div class="topbar-mobile">
+            <span class="brand" style="border:none;padding:0;font-size:1.1rem;"><i class="ph-fill ph-lightning"></i> FlowCRM</span>
+            <button id="mobile-menu-btn"><i class="ph ph-list"></i></button>
+        </div>
+
+        <!-- DEMO BANNER -->
+        <div id="demo-banner" style="background:linear-gradient(90deg,rgba(0,212,255,0.08),rgba(155,89,255,0.08));border-bottom:1px solid rgba(0,212,255,0.18);padding:7px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text-muted);">
+                <i class="ph-fill ph-eye" style="color:var(--color-primary);font-size:.95rem;"></i>
+                <span><strong style="color:var(--text-main);">Demo Preview</strong> — Data is local &amp; resets on refresh. No server required.</span>
+            </div>
+            <button id="topbar-switch-btn" onclick="DemoSwitch.toggle()" class="btn btn-sm" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);color:var(--color-primary);font-size:.75rem;padding:4px 12px;display:none;"></button>
+        </div>
+
+        <div class="page-container">
+
+            <!-- ─── DASHBOARD ─── -->
+            <section id="dashboard" class="page active">
+                <div class="page-header">
+                    <div>
+                        <h2>Dashboard</h2>
+                        <p>Welcome back. Here's what's happening.</p>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card blue"><div class="stat-icon blue"><i class="ph ph-users"></i></div><h3>Total Contacts</h3><div class="value" id="stat-total">0</div></div>
+                    <div class="stat-card green"><div class="stat-icon green"><i class="ph ph-check-circle"></i></div><h3>Won Deals</h3><div class="value" id="stat-won">0</div></div>
+                    <div class="stat-card amber"><div class="stat-icon amber"><i class="ph ph-hourglass-high"></i></div><h3>In Pipeline</h3><div class="value" id="stat-pipeline">0</div></div>
+                    <div class="stat-card red"><div class="stat-icon red"><i class="ph ph-x-circle"></i></div><h3>Lost Deals</h3><div class="value" id="stat-lost">0</div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                    <div class="table-wrap">
+                        <div style="padding:14px 16px;border-bottom:1px solid var(--border-color);font-weight:600;font-size:.92rem;">Recent Contacts</div>
+                        <table><thead><tr><th>Name</th><th>Company</th><th>Status</th><th>Added</th></tr></thead>
+                        <tbody id="recent-contacts-body"></tbody></table>
+                    </div>
+                    <div class="card" style="padding:0;overflow:hidden;">
+                        <div style="padding:14px 16px;border-bottom:1px solid var(--border-color);font-weight:600;font-size:.92rem;">Pipeline Distribution</div>
+                        <div style="padding:16px;">
+                            <div id="pipeline-bar" style="display:flex;height:20px;border-radius:10px;overflow:hidden;background:var(--bg-elevated);margin-bottom:14px;"></div>
+                            <div id="pipeline-legend" style="display:flex;flex-wrap:wrap;gap:10px;font-size:.78rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ─── CONTACTS ─── -->
+            <section id="contacts" class="page">
+                <div class="page-header">
+                    <div><h2>All Contacts</h2></div>
+                    <div class="page-actions">
+                        <div class="search-wrap">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" id="search-contacts" placeholder="Search contacts…" style="width:220px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
+                        <tbody id="contacts-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ─── PIPELINE ─── -->
+            <section id="pipeline" class="page">
+                <div class="page-header">
+                    <div><h2>Sales Pipeline</h2><p>Drag cards to update status.</p></div>
+                </div>
+                <div class="pipeline-board">
+                    <div class="kanban-column" data-status="New"><div class="kanban-header" style="border-top:2px solid var(--color-primary);"><h3>New</h3><span class="kanban-count" id="count-new">0</span></div><div class="kanban-cards" id="col-new"></div></div>
+                    <div class="kanban-column" data-status="Contacted"><div class="kanban-header" style="border-top:2px solid var(--color-warning);"><h3>Contacted</h3><span class="kanban-count" id="count-contacted">0</span></div><div class="kanban-cards" id="col-contacted"></div></div>
+                    <div class="kanban-column" data-status="Qualified"><div class="kanban-header" style="border-top:2px solid var(--color-purple);"><h3>Qualified</h3><span class="kanban-count" id="count-qualified">0</span></div><div class="kanban-cards" id="col-qualified"></div></div>
+                    <div class="kanban-column" data-status="Call Back"><div class="kanban-header" style="border-top:2px solid #00d4c8;"><h3>Call Back</h3><span class="kanban-count" id="count-call-back">0</span></div><div class="kanban-cards" id="col-call-back"></div></div>
+                    <div class="kanban-column" data-status="Won"><div class="kanban-header" style="border-top:2px solid var(--color-success);"><h3>Won</h3><span class="kanban-count" id="count-won">0</span></div><div class="kanban-cards" id="col-won"></div></div>
+                    <div class="kanban-column" data-status="Lost"><div class="kanban-header" style="border-top:2px solid var(--color-danger);"><h3>Lost</h3><span class="kanban-count" id="count-lost">0</span></div><div class="kanban-cards" id="col-lost"></div></div>
+                </div>
+            </section>
+
+            <!-- ─── ADMIN CONTROL PANEL ─── -->
+            <section id="admin" class="page">
+                <div class="page-header">
+                    <div>
+                        <h2 style="display:flex;align-items:center;gap:10px;"><i class="ph ph-shield-check" style="color:var(--color-accent);"></i>Control Panel</h2>
+                        <p>Full administrative access — manage users, contacts, and system data.</p>
+                    </div>
+                </div>
+                <div class="admin-banner">
+                    <i class="ph-fill ph-shield-check"></i>
+                    <span>You are operating with administrator privileges. All actions are logged.</span>
+                </div>
+
+                <!-- Admin Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="tab-overview"><i class="ph ph-chart-bar"></i> Overview</button>
+                    <button class="admin-tab" data-tab="tab-users"><i class="ph ph-users-three"></i> User Management</button>
+                    <button class="admin-tab" data-tab="tab-contacts"><i class="ph ph-address-book"></i> Contact Management</button>
+                    <button class="admin-tab" data-tab="tab-data"><i class="ph ph-database"></i> Data Management</button>
+                </div>
+
+                <!-- TAB: Overview -->
+                <div id="tab-overview" class="tab-pane active">
+                    <div class="admin-overview-grid">
+                        <div class="stat-card blue"><div class="stat-icon blue"><i class="ph ph-users-three"></i></div><h3>Total Users</h3><div class="value" id="admin-stat-users">0</div></div>
+                        <div class="stat-card amber"><div class="stat-icon amber"><i class="ph ph-shield-check"></i></div><h3>Admins</h3><div class="value" id="admin-stat-admins">0</div></div>
+                        <div class="stat-card green"><div class="stat-icon green"><i class="ph ph-address-book"></i></div><h3>Total Contacts</h3><div class="value" id="admin-stat-contacts">0</div></div>
+                        <div class="stat-card purple"><div class="stat-icon purple"><i class="ph ph-toggle-right"></i></div><h3>Active Users</h3><div class="value" id="admin-stat-active">0</div></div>
+                        <div class="stat-card green"><div class="stat-icon green"><i class="ph ph-check-circle"></i></div><h3>Won Deals</h3><div class="value" id="admin-stat-won">0</div></div>
+                        <div class="stat-card red"><div class="stat-icon red"><i class="ph ph-x-circle"></i></div><h3>Lost Deals</h3><div class="value" id="admin-stat-lost">0</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span class="card-title"><i class="ph ph-clock-countdown"></i> Recent Activity</span></div>
+                        <div id="admin-activity-log">
+                            <div class="empty-state"><i class="ph ph-clock"></i>No activity recorded yet.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: Users -->
+                <div id="tab-users" class="tab-pane">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <h3 style="font-size:1rem;margin-bottom:3px;">User Accounts</h3>
+                            <p style="color:var(--text-muted);font-size:.82rem;">Create accounts, manage roles, activate or deactivate access.</p>
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-accent" onclick="AdminCP.openAddUser()"><i class="ph ph-user-plus"></i> Add New User</button>
+                            <button class="btn btn-primary" onclick="AdminCP.openUploadLeadsModal()"><i class="ph ph-upload-simple"></i> Upload Leads to User</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Contacts</th><th style="color:var(--color-success);">Won</th><th style="color:var(--color-danger);">Lost</th><th>Created</th><th>Last Login</th><th style="text-align:right;">Actions</th></tr></thead>
+                            <tbody id="admin-users-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: Contacts -->
+                <div id="tab-contacts" class="tab-pane">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <h3 style="font-size:1rem;margin-bottom:3px;">All Contacts</h3>
+                            <p style="color:var(--text-muted);font-size:.82rem;">Full access — add, edit, delete any contact.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="AdminCP.openAddContact()"><i class="ph ph-plus"></i> Add Contact</button>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <div class="search-wrap" style="max-width:300px;">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" id="admin-search-contacts" placeholder="Search contacts…">
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Status</th><th>Owner</th><th style="text-align:right;">Actions</th></tr></thead>
+                            <tbody id="admin-contacts-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: Data Management -->
+                <div id="tab-data" class="tab-pane">
+                    <h3 style="font-size:1rem;margin-bottom:4px;">Data Management</h3>
+                    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:20px;">Backup and restore CRM data. Backups include all contacts across all users.</p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:700px;">
+                        <div class="card" style="cursor:pointer;transition:all var(--transition-base);" onclick="AdminCP.backupData()">
+                            <div style="display:flex;gap:14px;align-items:center;">
+                                <div class="stat-icon green" style="width:48px;height:48px;font-size:1.4rem;flex-shrink:0;"><i class="ph ph-download-simple"></i></div>
+                                <div>
+                                    <div style="font-weight:600;margin-bottom:4px;">Backup Data</div>
+                                    <div style="font-size:.8rem;color:var(--text-muted);">Export all contacts to a JSON file</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" style="cursor:pointer;" onclick="document.getElementById('restore-file-input').click()">
+                            <div style="display:flex;gap:14px;align-items:center;">
+                                <div class="stat-icon blue" style="width:48px;height:48px;font-size:1.4rem;flex-shrink:0;"><i class="ph ph-upload-simple"></i></div>
+                                <div>
+                                    <div style="font-weight:600;margin-bottom:4px;">Restore Data</div>
+                                    <div style="font-size:.8rem;color:var(--text-muted);">Import contacts from a JSON backup</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="restore-file-input" accept=".json" style="display:none;">
+                    <div style="margin-top:24px;">
+                        <h3 style="font-size:.95rem;margin-bottom:12px;">Backup History</h3>
+                        <div id="backup-history-list" class="table-wrap">
+                            <div class="empty-state" style="padding:24px;"><i class="ph ph-archive"></i>No backups recorded in this session.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </section><!-- /admin -->
+
+        </div><!-- /page-container -->
+    </main>
+</div><!-- /app-view -->
+
+<!-- ══ CONTACT DETAIL SIDE PANEL ══ -->
+<div id="contact-detail-panel">
+    <div class="panel-header">
+        <h2 style="font-size:1.1rem;">Contact Details</h2>
+        <button class="icon-btn" onclick="UI.closeDetailPanel()"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="panel-content" id="detail-content"></div>
+    <div class="panel-header" style="border-top:1px solid var(--border-color);border-bottom:none;gap:8px;justify-content:flex-start;">
+        <button class="btn btn-primary" id="detail-edit-btn" style="flex:1;">Edit</button>
+        <button class="btn btn-danger" id="detail-delete-btn" style="flex:1;display:none;">Delete</button>
+    </div>
+</div>
+
+<!-- ══ MODAL: Edit Contact (regular users — status & notes only) ══ -->
+<div id="contact-modal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modal-title">Edit Contact</h2>
+            <button class="icon-btn" onclick="UI.closeContactModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <form id="contact-form">
+            <div class="modal-body">
+                <input type="hidden" id="contact-id">
+                <div id="readonly-notice" style="display:none;margin-bottom:14px;padding:9px 13px;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius-sm);font-size:.8rem;color:var(--text-muted);display:flex;align-items:center;gap:7px;">
+                    <i class="ph ph-lock"></i> Name, email, phone, and company are read-only. You can update Status and Notes.
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="contact-name" required>
+                </div>
+                <div class="form-row">
+                    <div class="input-group"><label>Email</label><input type="email" id="contact-email" required></div>
+                    <div class="input-group"><label>Phone</label><input type="tel" id="contact-phone"></div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group"><label>Company</label><input type="text" id="contact-company"></div>
+                    <div class="input-group">
+                        <label>Status</label>
+                        <select id="contact-status">
+                            <option value="New">New</option>
+                            <option value="Contacted">Contacted</option>
+                            <option value="Qualified">Qualified</option>
+                            <option value="Call Back">Call Back</option>
+                            <option value="Won">Won</option>
+                            <option value="Lost">Lost</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group"><label>Notes</label><textarea id="contact-notes" placeholder="Add notes…"></textarea></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="UI.closeContactModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="modal-save-btn">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ══ MODAL: Admin — Add/Edit Contact ══ -->
+<div id="admin-contact-modal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><i class="ph ph-address-book" style="color:var(--color-primary);"></i> <span id="admin-contact-modal-title">Add Contact</span></h2>
+            <button class="icon-btn" onclick="AdminCP.closeContactModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <form id="admin-contact-form">
+            <div class="modal-body">
+                <input type="hidden" id="admin-contact-id">
+                <div class="input-group"><label>Full Name <span class="req">*</span></label><input type="text" id="admin-contact-name" required></div>
+                <div class="form-row">
+                    <div class="input-group"><label>Email <span class="req">*</span></label><input type="email" id="admin-contact-email" required></div>
+                    <div class="input-group"><label>Phone</label><input type="tel" id="admin-contact-phone"></div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group"><label>Company</label><input type="text" id="admin-contact-company"></div>
+                    <div class="input-group">
+                        <label>Status</label>
+                        <select id="admin-contact-status">
+                            <option value="New">New</option>
+                            <option value="Contacted">Contacted</option>
+                            <option value="Qualified">Qualified</option>
+                            <option value="Call Back">Call Back</option>
+                            <option value="Won">Won</option>
+                            <option value="Lost">Lost</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group"><label>Notes</label><textarea id="admin-contact-notes" placeholder="Add notes…"></textarea></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="AdminCP.closeContactModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Contact</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ══ MODAL: Admin — Add User ══ -->
+<div id="admin-add-user-modal" class="modal-overlay">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h2><i class="ph ph-user-plus" style="color:var(--color-accent);"></i> Add New User</h2>
+            <button class="icon-btn" onclick="AdminCP.closeAddUserModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <form id="admin-add-user-form">
+            <div class="modal-body">
+                <div class="input-group"><label>Email Address <span class="req">*</span></label><input type="email" id="new-user-email" required autocomplete="off"></div>
+                <div class="input-group">
+                    <label>Password <span class="req">*</span></label>
+                    <input type="password" id="new-user-password" required minlength="6" autocomplete="new-password" oninput="AdminCP.checkPwdStrength(this.value)">
+                    <div class="pwd-strength" id="pwd-strength-bar"></div>
+                    <div class="field-hint" id="pwd-strength-label"><i class="ph ph-info"></i> Minimum 6 characters</div>
+                </div>
+                <div class="input-group">
+                    <label>Role</label>
+                    <select id="new-user-role">
+                        <option value="user">User — standard access</option>
+                        <option value="admin">Admin — full Control Panel access</option>
+                    </select>
+                </div>
+                <div class="input-group" style="margin-bottom:0;">
+                    <label>Account Status</label>
+                    <select id="new-user-active">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive (disabled)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="AdminCP.closeAddUserModal()">Cancel</button>
+                <button type="submit" class="btn btn-accent"><i class="ph ph-user-plus"></i> Create Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ══ MODAL: Admin — Edit User ══ -->
+<div id="admin-edit-user-modal" class="modal-overlay">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h2><i class="ph ph-user-gear" style="color:var(--color-accent);"></i> Edit User</h2>
+            <button class="icon-btn" onclick="AdminCP.closeEditUserModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <form id="admin-edit-user-form">
+            <div class="modal-body">
+                <input type="hidden" id="edit-user-email-key">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="edit-user-email" readonly style="cursor:not-allowed;">
+                    <div class="field-hint"><i class="ph ph-info"></i> Email address cannot be changed (it is the account key).</div>
+                </div>
+                <div class="input-group">
+                    <label>New Password</label>
+                    <input type="password" id="edit-user-password" placeholder="Leave blank to keep current password" autocomplete="new-password" oninput="AdminCP.checkPwdStrength(this.value,'edit-pwd-strength-bar','edit-pwd-strength-label')">
+                    <div class="pwd-strength" id="edit-pwd-strength-bar"></div>
+                    <div class="field-hint" id="edit-pwd-strength-label"><i class="ph ph-info"></i> Leave blank to keep existing password.</div>
+                </div>
+                <div class="input-group">
+                    <label>Role</label>
+                    <select id="edit-user-role">
+                        <option value="user">User — standard access</option>
+                        <option value="admin">Admin — full Control Panel access</option>
+                    </select>
+                </div>
+                <div class="input-group" style="margin-bottom:0;">
+                    <label>Account Status</label>
+                    <select id="edit-user-active">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive (disabled)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="AdminCP.closeEditUserModal()">Cancel</button>
+                <button type="submit" class="btn btn-accent"><i class="ph ph-floppy-disk"></i> Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ══ MODAL: Admin — Upload Leads to User ══ -->
+<div id="upload-leads-modal" class="modal-overlay" style="z-index:1100;">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h2><i class="ph ph-upload-simple" style="color:var(--color-primary);"></i> Upload Leads to Account</h2>
+            <button class="icon-btn" onclick="AdminCP.closeUploadLeadsModal()"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:16px;">
+            <!-- Target user -->
+            <div class="input-group" style="margin-bottom:0;">
+                <label>Target Account — leads will be assigned to this user</label>
+                <select id="upload-leads-target-user">
+                    <option value="">— Select a user account —</option>
+                </select>
+            </div>
+
+            <!-- Format tabs -->
+            <div style="display:flex;gap:0;border:1px solid var(--border-color);border-radius:var(--radius-sm);overflow:hidden;">
+                <button class="upload-fmt-tab active" data-fmt="csv" onclick="AdminCP.switchUploadFmt('csv',this)" style="flex:1;padding:8px;border:none;background:var(--color-primary-light);color:var(--color-primary);font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;"><i class="ph ph-file-csv"></i> CSV File</button>
+                <button class="upload-fmt-tab" data-fmt="json" onclick="AdminCP.switchUploadFmt('json',this)" style="flex:1;padding:8px;border:none;border-left:1px solid var(--border-color);background:transparent;color:var(--text-muted);font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;"><i class="ph ph-file-js"></i> JSON File</button>
+                <button class="upload-fmt-tab" data-fmt="manual" onclick="AdminCP.switchUploadFmt('manual',this)" style="flex:1;padding:8px;border:none;border-left:1px solid var(--border-color);background:transparent;color:var(--text-muted);font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;"><i class="ph ph-keyboard"></i> Manual Entry</button>
+            </div>
+
+            <!-- CSV panel -->
+            <div id="upload-fmt-csv" class="upload-fmt-pane">
+                <div style="border:2px dashed var(--border-color);border-radius:var(--radius-md);padding:28px;text-align:center;cursor:pointer;transition:all .2s;" id="csv-dropzone" onclick="document.getElementById('csv-file-input').click()">
+                    <i class="ph ph-file-csv" style="font-size:2.2rem;color:var(--text-dim);display:block;margin-bottom:8px;"></i>
+                    <div style="font-weight:600;margin-bottom:4px;">Click to choose a CSV file or drag & drop</div>
+                    <div style="font-size:.78rem;color:var(--text-muted);">Required columns: <code style="background:var(--bg-elevated);padding:1px 5px;border-radius:3px;">name, email</code> — Optional: <code style="background:var(--bg-elevated);padding:1px 5px;border-radius:3px;">phone, company, status, notes</code></div>
+                </div>
+                <input type="file" id="csv-file-input" accept=".csv" style="display:none;">
+            </div>
+
+            <!-- JSON panel -->
+            <div id="upload-fmt-json" class="upload-fmt-pane" style="display:none;">
+                <div style="border:2px dashed var(--border-color);border-radius:var(--radius-md);padding:28px;text-align:center;cursor:pointer;transition:all .2s;" onclick="document.getElementById('json-leads-file-input').click()">
+                    <i class="ph ph-file-js" style="font-size:2.2rem;color:var(--text-dim);display:block;margin-bottom:8px;"></i>
+                    <div style="font-weight:600;margin-bottom:4px;">Click to choose a JSON file</div>
+                    <div style="font-size:.78rem;color:var(--text-muted);">Array of objects with <code style="background:var(--bg-elevated);padding:1px 5px;border-radius:3px;">name</code> and <code style="background:var(--bg-elevated);padding:1px 5px;border-radius:3px;">email</code> fields.</div>
+                </div>
+                <input type="file" id="json-leads-file-input" accept=".json" style="display:none;">
+            </div>
+
+            <!-- Manual panel -->
+            <div id="upload-fmt-manual" class="upload-fmt-pane" style="display:none;">
+                <label>Paste leads — one per line, format: <code style="background:var(--bg-elevated);padding:1px 6px;border-radius:3px;font-size:.8rem;">Name, Email, Phone, Company, Status</code></label>
+                <textarea id="manual-leads-input" placeholder="John Smith, john@example.com, +1 555 0100, Acme Corp, New&#10;Jane Doe, jane@example.com, , Beta Ltd, Contacted" style="min-height:130px;margin-top:6px;font-family:monospace;font-size:.82rem;"></textarea>
+                <div style="font-size:.75rem;color:var(--text-dim);margin-top:5px;"><i class="ph ph-info"></i> Phone, Company and Status are optional. Default status: New.</div>
+            </div>
+
+            <!-- Preview area -->
+            <div id="upload-preview-wrap" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-weight:600;font-size:.9rem;">Preview — <span id="upload-preview-count">0</span> leads ready</span>
+                    <button class="btn btn-ghost btn-xs" onclick="AdminCP.clearUploadPreview()"><i class="ph ph-x"></i> Clear</button>
+                </div>
+                <div class="table-wrap" style="max-height:200px;overflow-y:auto;">
+                    <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Status</th></tr></thead>
+                    <tbody id="upload-preview-tbody"></tbody></table>
+                </div>
+                <div id="upload-error-list" style="margin-top:8px;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="AdminCP.closeUploadLeadsModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" id="upload-leads-submit-btn" onclick="AdminCP.submitLeadsUpload()" disabled>
+                <i class="ph ph-upload-simple"></i> Upload Leads
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL: Admin — User Leads Panel ══ -->
+<div id="user-leads-modal" class="modal-overlay">
+    <div class="modal" style="max-width:820px;">
+        <div class="modal-header">
+            <div>
+                <h2 style="display:flex;align-items:center;gap:10px;">
+                    <i class="ph ph-address-book" style="color:var(--color-accent);"></i>
+                    <span id="user-leads-modal-title">User Leads</span>
+                </h2>
+                <div id="user-leads-modal-subtitle" style="font-size:.8rem;color:var(--text-muted);margin-top:3px;font-weight:400;font-family:var(--font-body);"></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <div style="position:relative;">
+                    <i class="ph ph-magnifying-glass" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.95rem;pointer-events:none;"></i>
+                    <input type="text" id="user-leads-search" placeholder="Search leads…"
+                        style="padding:6px 10px 6px 32px;width:200px;background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-main);font-size:.82rem;font-family:var(--font-body);"
+                        oninput="AdminCP._onUserLeadsSearch(this.value)">
+                </div>
+                <button class="icon-btn" onclick="AdminCP.closeUserLeadsModal()"><i class="ph ph-x"></i></button>
+            </div>
+        </div>
+        <div class="modal-body" style="padding:0;overflow:hidden;">
+            <!-- Status filter pills -->
+            <div style="display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border-color);flex-wrap:wrap;align-items:center;">
+                <span style="font-size:.7rem;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-right:4px;">Filter:</span>
+                <button class="user-leads-filter-btn active" data-status="all"
+                    onclick="AdminCP._filterUserLeads('all',this)"
+                    style="padding:3px 12px;border:1px solid var(--border-color);background:var(--bg-elevated);color:var(--text-main);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;">All</button>
+                <button class="user-leads-filter-btn" data-status="New"
+                    onclick="AdminCP._filterUserLeads('New',this)"
+                    style="padding:3px 12px;border:1px solid rgba(0,212,255,.25);background:rgba(0,212,255,.08);color:var(--color-primary);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;">New</button>
+                <button class="user-leads-filter-btn" data-status="Contacted"
+                    onclick="AdminCP._filterUserLeads('Contacted',this)"
+                    style="padding:3px 12px;border:1px solid rgba(255,179,0,.25);background:rgba(255,179,0,.08);color:var(--color-warning);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;">Contacted</button>
+                <button class="user-leads-filter-btn" data-status="Qualified"
+                    onclick="AdminCP._filterUserLeads('Qualified',this)"
+                    style="padding:3px 12px;border:1px solid rgba(155,89,255,.25);background:rgba(155,89,255,.08);color:var(--color-purple);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;">Qualified</button>
+                <button class="user-leads-filter-btn" data-status="Won"
+                    onclick="AdminCP._filterUserLeads('Won',this)"
+                    style="padding:3px 12px;border:1px solid rgba(0,230,118,.25);background:rgba(0,230,118,.08);color:var(--color-success);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;">Won</button>
+                <button class="user-leads-filter-btn" data-status="Call Back"
+                    onclick="AdminCP._filterUserLeads('Call Back',this)"
+                    style="padding:3px 12px;border:1px solid rgba(0,212,200,.25);background:rgba(0,212,200,.08);color:#00d4c8;border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;">Call Back</button>
+                <button class="user-leads-filter-btn" data-status="Lost"
+                    onclick="AdminCP._filterUserLeads('Lost',this)"
+                    style="padding:3px 12px;border:1px solid rgba(255,61,87,.25);background:rgba(255,61,87,.08);color:var(--color-danger);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;">Lost</button>
+                <span id="user-leads-count-label" style="margin-left:auto;font-size:.75rem;color:var(--text-dim);"></span>
+            </div>
+            <!-- Table -->
+            <div style="max-height:420px;overflow-y:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead style="background:var(--bg-elevated);position:sticky;top:0;z-index:5;">
+                        <tr>
+                            <th style="padding:9px 14px;text-align:left;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border-color);font-weight:600;">Name</th>
+                            <th style="padding:9px 14px;text-align:left;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border-color);font-weight:600;">Email</th>
+                            <th style="padding:9px 14px;text-align:left;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border-color);font-weight:600;">Phone</th>
+                            <th style="padding:9px 14px;text-align:left;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border-color);font-weight:600;">Company</th>
+                            <th style="padding:9px 14px;text-align:left;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border-color);font-weight:600;">Status</th>
+                            <th style="padding:9px 14px;text-align:left;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border-color);font-weight:600;">Updated</th>
+                            <th style="padding:9px 14px;text-align:right;font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border-color);font-weight:600;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-leads-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <button class="btn btn-primary btn-sm" onclick="AdminCP.openUploadLeadsModal(document.getElementById('user-leads-modal').dataset.email)">
+                    <i class="ph ph-upload-simple"></i> Upload More Leads
+                </button>
+                <button class="btn btn-success btn-sm" onclick="AdminCP.downloadUserLeads(document.getElementById('user-leads-modal').dataset.email)">
+                    <i class="ph ph-download-simple"></i> Download CSV
+                </button>
+                <!-- Delete by Status dropdown -->
+                <div style="position:relative;display:inline-block;" id="delete-by-status-wrap">
+                    <button class="btn btn-outline btn-sm" onclick="AdminCP._toggleDeleteByStatusMenu()" style="color:var(--color-danger);border-color:rgba(239,68,68,.4);">
+                        <i class="ph ph-trash-simple"></i> Delete by Status <i class="ph ph-caret-down" style="font-size:.7rem;margin-left:2px;"></i>
+                    </button>
+                    <div id="delete-by-status-menu" style="display:none;position:absolute;bottom:calc(100% + 6px);left:0;background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);min-width:160px;z-index:200;overflow:hidden;">
+                        <div style="padding:6px 0;">
+                            <div style="padding:4px 10px 2px;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);font-weight:700;">Delete all leads with status:</div>
+                            <button onclick="AdminCP._deleteByStatusFromMenu('New')" style="width:100%;padding:7px 14px;background:none;border:none;color:var(--color-primary);text-align:left;cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='none'"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-primary);display:inline-block;"></span>New</button>
+                            <button onclick="AdminCP._deleteByStatusFromMenu('Contacted')" style="width:100%;padding:7px 14px;background:none;border:none;color:var(--color-warning);text-align:left;cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='none'"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-warning);display:inline-block;"></span>Contacted</button>
+                            <button onclick="AdminCP._deleteByStatusFromMenu('Qualified')" style="width:100%;padding:7px 14px;background:none;border:none;color:var(--color-purple);text-align:left;cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='none'"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-purple);display:inline-block;"></span>Qualified</button>
+                            <button onclick="AdminCP._deleteByStatusFromMenu('Call Back')" style="width:100%;padding:7px 14px;background:none;border:none;color:#00d4c8;text-align:left;cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='none'"><span style="width:8px;height:8px;border-radius:50%;background:#00d4c8;display:inline-block;"></span>Call Back</button>
+                            <button onclick="AdminCP._deleteByStatusFromMenu('Won')" style="width:100%;padding:7px 14px;background:none;border:none;color:var(--color-success);text-align:left;cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='none'"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-success);display:inline-block;"></span>Won</button>
+                            <button onclick="AdminCP._deleteByStatusFromMenu('Lost')" style="width:100%;padding:7px 14px;background:none;border:none;color:var(--color-danger);text-align:left;cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='var(--bg-surface-hover)'" onmouseout="this.style.background='none'"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-danger);display:inline-block;"></span>Lost</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="AdminCP.clearAllUserLeads(document.getElementById('user-leads-modal').dataset.email)" title="Delete ALL leads for this user — cannot be undone">
+                    <i class="ph ph-trash"></i> Clear All Leads
+                </button>
+            </div>
+            <button class="btn btn-outline" onclick="AdminCP.closeUserLeadsModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL: Confirm ══ -->
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal confirm-modal modal-sm">
+        <div class="modal-header"><h2><i class="ph-fill ph-warning"></i> Confirm Action</h2></div>
+        <div class="modal-body"><p id="confirm-message">Are you sure?</p></div>
+        <div class="modal-footer">
+            <button id="confirm-no" class="btn btn-outline">Cancel</button>
+            <button id="confirm-yes" class="btn btn-danger">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+
+<script>
+'use strict';
+// ════════════════════════════════════════════════════════
+//  FlowCRM — Demo Edition  (local data, no server needed)
+// ════════════════════════════════════════════════════════
+
+// ── DEMO DATA STORE ──────────────────────────────────
+const DemoStore = {
+    _contacts: [
+        {id:'c001',name:'Alice Johnson',email:'alice@acmecorp.com',phone:'+1 555-0101',company:'Acme Corp',status:'Won',notes:'Long-term client, very satisfied.',user_email:'john@company.com',created_at:Date.now()-8640000*5},
+        {id:'c002',name:'Bob Martinez',email:'bob@techstart.io',phone:'+1 555-0102',company:'TechStart',status:'Qualified',notes:'Follow up after product demo.',user_email:'john@company.com',created_at:Date.now()-8640000*4},
+        {id:'c003',name:'Carol White',email:'carol@globalinc.com',phone:'+1 555-0103',company:'Global Inc',status:'Contacted',notes:'Interested in enterprise plan.',user_email:'john@company.com',created_at:Date.now()-8640000*3},
+        {id:'c004',name:'David Chen',email:'david@novanet.co',phone:'+1 555-0104',company:'NovaNET',status:'New',notes:'',user_email:'sarah@company.com',created_at:Date.now()-8640000*2},
+        {id:'c005',name:'Eva Müller',email:'eva@eurotrade.eu',phone:'+49 30 55501',company:'EuroTrade GmbH',status:'Call Back',notes:'Prefers mornings, CET timezone.',user_email:'sarah@company.com',created_at:Date.now()-8640000*1},
+        {id:'c006',name:'Frank Okafor',email:'frank@lagonet.ng',phone:'+234 801 555 0106',company:'LagoNet',status:'Lost',notes:'Chose competitor due to pricing.',user_email:'sarah@company.com',created_at:Date.now()-86400*6},
+        {id:'c007',name:'Grace Kim',email:'grace@seoultech.kr',phone:'+82 2 555 0107',company:'SeoulTech',status:'Won',notes:'Renewed for second year.',user_email:'john@company.com',created_at:Date.now()-86400*7},
+        {id:'c008',name:'Hector Reyes',email:'hector@cdmxbiz.mx',phone:'+52 55 5550 0108',company:'CDMX Biz',status:'New',notes:'Referral from Alice Johnson.',user_email:'sarah@company.com',created_at:Date.now()-86400*8},
+    ],
+    _users: [
+        {email:'admin@company.com',role:'admin',active:true,created_at:Date.now()-8640000*30,last_login:Date.now()-3600000},
+        {email:'john@company.com',role:'user',active:true,created_at:Date.now()-8640000*20,last_login:Date.now()-7200000},
+        {email:'sarah@company.com',role:'user',active:true,created_at:Date.now()-8640000*10,last_login:Date.now()-86400000},
+        {email:'inactive@company.com',role:'user',active:false,created_at:Date.now()-8640000*15,last_login:null},
+    ],
+    _activity: [
+        {action:'Contact Won',detail:'Alice Johnson moved to Won',actor:'john@company.com',ts:Date.now()-3600000*2,icon:'ph-check-circle',color:'green'},
+        {action:'New Contact',detail:'Hector Reyes added',actor:'sarah@company.com',ts:Date.now()-3600000*5,icon:'ph-user-plus',color:'blue'},
+        {action:'Status Update',detail:'Eva Müller → Call Back',actor:'sarah@company.com',ts:Date.now()-3600000*8,icon:'ph-arrow-circle-right',color:'amber'},
+        {action:'Contact Lost',detail:'Frank Okafor marked as Lost',actor:'sarah@company.com',ts:Date.now()-86400000,icon:'ph-x-circle',color:'red'},
+    ],
+    genId: () => Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    getContacts()    { return [...this._contacts]; },
+    getContact(id)   { return this._contacts.find(c=>c.id===id); },
+    addContact(c)    { const n={...c,id:this.genId(),created_at:Date.now()}; this._contacts.unshift(n); this._log('New Contact',`${n.name} added`,'admin@company.com','ph-user-plus','blue'); return n; },
+    updateContact(id,c) { const i=this._contacts.findIndex(x=>x.id===id); if(i<0)throw new Error('Not found'); Object.assign(this._contacts[i],c); this._log('Contact Updated',`${this._contacts[i].name} updated`,'admin@company.com','ph-pencil','blue'); return this._contacts[i]; },
+    deleteContact(id) { const c=this._contacts.find(x=>x.id===id); this._contacts=this._contacts.filter(x=>x.id!==id); if(c)this._log('Contact Deleted',`${c.name} deleted`,'admin@company.com','ph-trash','red'); },
+    getUsers()       { return [...this._users]; },
+    addUser(u)       { const n={...u,created_at:Date.now(),last_login:null}; this._users.push(n); return n; },
+    updateUser(email,u) { const i=this._users.findIndex(x=>x.email===email); if(i<0)throw new Error('Not found'); Object.assign(this._users[i],u); return this._users[i]; },
+    deleteUser(email){ this._users=this._users.filter(x=>x.email!==email); },
+    toggleUser(email){ const u=this._users.find(x=>x.email===email); if(u)u.active=!u.active; },
+    getActivity()    { return [...this._activity].sort((a,b)=>b.ts-a.ts).slice(0,20); },
+    _log(action,detail,actor,icon,color){ this._activity.unshift({action,detail,actor,ts:Date.now(),icon:`ph-${icon}`,color}); },
+    bulkContacts(contacts,email){ contacts.forEach(c=>this.addContact({...c,user_email:email})); },
+    bulkDeleteContacts(ids){ ids.forEach(id=>this.deleteContact(id)); },
+    deleteAllUserContacts(email){ this._contacts=this._contacts.filter(c=>c.user_email!==email); },
+};
+
+// ── 1. API LAYER (demo — wraps DemoStore) ─────────────
+const API = {
+    _token: 'demo-token',
+    setToken(t) { this._token=t; },
+    async login(email,password)          { return DemoStore._users.find(u=>u.email===email&&u.active)||(() => {throw new Error('Invalid credentials');})(); },
+    async logout()                       { },
+    async me()                           { return AppState.user; },
+    async getContacts()                  { return DemoStore.getContacts(); },
+    async createContact(c)               { return DemoStore.addContact(c); },
+    async updateContact(id,c)            { return DemoStore.updateContact(id,c); },
+    async deleteContact(id)              { return DemoStore.deleteContact(id); },
+    async bulkContacts(contacts,email)   { return DemoStore.bulkContacts(contacts,email); },
+    async bulkDeleteContacts(ids)        { return DemoStore.bulkDeleteContacts(ids); },
+    async deleteAllUserContacts(email)   { return DemoStore.deleteAllUserContacts(email); },
+    async getUsers()                     { return DemoStore.getUsers(); },
+    async createUser(u)                  { return DemoStore.addUser(u); },
+    async updateUser(email,u)            { return DemoStore.updateUser(email,u); },
+    async deleteUser(email)              { return DemoStore.deleteUser(email); },
+    async toggleUser(email)              { return DemoStore.toggleUser(email); },
+    async getActivity()                  { return DemoStore.getActivity(); },
+    async backup()                       { return {contacts:DemoStore.getContacts()}; },
+    async restore(contacts)              { DemoStore._contacts=[...contacts]; },
+};
+
+// ── 2. REAL-TIME: No-op for demo ──────────────────────
+const LiveSync = {
+    connect()    {},
+    disconnect() {},
+};
+
+// ── 3. STATE ──────────────────────────────────────────
+const AppState = {
+    user:        null,
+    contacts:    [],
+    _contactMap: new Map(),
+    currentView: 'dashboard',
+    isAdmin:     () => !!(AppState.user && AppState.user.role === 'admin'),
+};
+
+// ── 4. UTILITIES ──────────────────────────────────────
+const Utils = {
+    genId:   () => Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    fmtDate: ts  => { if(!ts) return '—'; const n=Number(ts); if(!n||isNaN(n)) return '—'; return new Date(n).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); },
+    fmtTime: ts  => { if(!ts) return '—'; const n=Number(ts); if(!n||isNaN(n)) return '—'; const d=new Date(n),now=Date.now(),diff=now-n; if(diff<60000) return 'just now'; if(diff<3600000) return Math.floor(diff/60000)+'m ago'; if(diff<86400000) return Math.floor(diff/3600000)+'h ago'; return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); },
+    esc:     s   => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
+    showToast(msg, type='success') {
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        const icons = {success:'ph-check-circle',error:'ph-warning-circle',warning:'ph-warning'};
+        el.innerHTML = `<i class="ph-fill ${icons[type]||icons.success}"></i><span>${Utils.esc(msg)}</span>`;
+        document.getElementById('toast-container').appendChild(el);
+        setTimeout(()=>{ el.classList.add('toast-fade-out'); setTimeout(()=>el.remove(),350); },3500);
+    },
+    parseCSVLine(line) {
+        const r=[]; let c=''; let q=false;
+        for (const ch of line) { if(ch==='"')q=!q; else if(ch===','&&!q){r.push(c.trim());c='';}else c+=ch; }
+        r.push(c.trim()); return r;
+    }
+};
+
+const Confirm = {
+    show(msg, onYes, yesLabel='Confirm', yesClass='btn-danger') {
+        const ov=document.getElementById('confirm-modal');
+        document.getElementById('confirm-message').textContent=msg;
+        const yb=document.getElementById('confirm-yes'), nb=document.getElementById('confirm-no');
+        yb.textContent=yesLabel; yb.className=`btn ${yesClass}`;
+        ov.classList.add('active');
+        const cleanup=()=>{ ov.classList.remove('active'); yb.replaceWith(yb.cloneNode(true)); nb.replaceWith(nb.cloneNode(true)); document.getElementById('confirm-no').onclick=()=>ov.classList.remove('active'); };
+        document.getElementById('confirm-yes').onclick=()=>{cleanup();onYes();};
+        document.getElementById('confirm-no').onclick=()=>cleanup();
+    }
+};
+
+// ── 5. ROUTER ─────────────────────────────────────────
+const Router = {
+    navigate(hash) {
+        const target=(hash||'').replace('#','')||'dashboard';
+        if (!AppState.user) { this.showApp(); return; }
+        if (target==='admin'&&!AppState.isAdmin()) { Utils.showToast('Admin access required.','error'); return; }
+        // Admins can only access Control Panel
+        if (AppState.isAdmin() && (target==='dashboard'||target==='contacts'||target==='pipeline')) {
+            this.navigate('#admin'); return;
+        }
+        document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+        const nb=document.querySelector(`.nav-item[data-target="${target}"]`); if(nb)nb.classList.add('active');
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        const pg=document.getElementById(target); if(pg){pg.classList.add('active');AppState.currentView=target;}
+        if (target==='admin') AdminCP.refreshAll();
+        document.getElementById('sidebar').classList.remove('open');
+    },
+    showAuth() {
+        // Demo: no auth screen, just show app
+        this.showApp();
+    },
+    showApp() {
+        document.getElementById('app-view').classList.add('active');
+        const an=document.getElementById('admin-nav-btn'), as=document.getElementById('admin-nav-section');
+        const userSection=document.getElementById('user-nav-section');
+        const navDash=document.getElementById('nav-dashboard'), navCon=document.getElementById('nav-contacts'), navPipe=document.getElementById('nav-pipeline');
+        const adminDivider=document.getElementById('admin-nav-divider');
+        if(AppState.isAdmin()){
+            an.style.display='';as.style.display='';adminDivider.style.display='';
+            if(userSection)userSection.style.display='none';
+            if(navDash)navDash.style.display='none';
+            if(navCon)navCon.style.display='none';
+            if(navPipe)navPipe.style.display='none';
+        } else {
+            an.style.display='none';as.style.display='none';adminDivider.style.display='none';
+            if(userSection)userSection.style.display='';
+            if(navDash)navDash.style.display='';
+            if(navCon)navCon.style.display='';
+            if(navPipe)navPipe.style.display='';
+        }
+        const u=AppState.user;
+        document.getElementById('user-display-email').textContent=u.email;
+        document.getElementById('user-avatar-initial').textContent=u.email.charAt(0).toUpperCase();
+        const badge=document.getElementById('user-role-badge'), avatar=document.getElementById('user-avatar-initial');
+        if(AppState.isAdmin()){badge.textContent='Admin';badge.className='user-role-badge admin';avatar.className='avatar admin-avatar';}
+        else{badge.textContent='User';badge.className='user-role-badge user';avatar.className='avatar';}
+        LiveSync.connect();
+        DemoSwitch.updateBtn();
+        const defaultHash = AppState.isAdmin() ? '#admin' : (window.location.hash||'#dashboard');
+        this.navigate(defaultHash);
+    }
+};
+
+// ── 6. MAIN UI ────────────────────────────────────────
+const UI = {
+    async loadData() {
+        try {
+            const contacts=(await API.getContacts()).sort((a,b)=>Number(b.created_at)-Number(a.created_at));
+            AppState.contacts=contacts;
+            AppState._contactMap=new Map(contacts.map(c=>[c.id,c]));
+            this._pipelinePages={};this.renderDashboard(); this.renderContacts(); this.renderPipeline();
+        } catch(e) { Utils.showToast('Load error: '+e.message,'error'); }
+    },
+
+    // Silent background sync — triggered by SSE, no animations visible to other users
+    _silentSyncTimer: null,
+    loadDataSilent() {
+        if(this._silentSyncTimer) return Promise.resolve();
+        return new Promise(resolve=>{
+            this._silentSyncTimer=setTimeout(async()=>{
+                this._silentSyncTimer=null;
+                try{
+                    const contacts=(await API.getContacts()).sort((a,b)=>Number(b.created_at)-Number(a.created_at));
+                    AppState.contacts=contacts;
+                    AppState._contactMap=new Map(contacts.map(c=>[c.id,c]));
+                    if(AppState.currentView==='dashboard') this.renderDashboard();
+                    else if(AppState.currentView==='contacts') this.renderContactsQuiet();
+                    else if(AppState.currentView==='pipeline') this.renderPipelineQuiet();
+                }catch(e){}
+                resolve();
+            },600); // debounce: absorbs burst when 10+ users move leads simultaneously
+        });
+    },
+
+    renderDashboard() {
+        const c=AppState.contacts;
+        const total=c.length,won=c.filter(x=>x.status==='Won').length,lost=c.filter(x=>x.status==='Lost').length;
+        document.getElementById('stat-total').textContent=total;
+        document.getElementById('stat-won').textContent=won;
+        document.getElementById('stat-pipeline').textContent=total-won-lost;
+        document.getElementById('stat-lost').textContent=lost;
+        const style=getComputedStyle(document.documentElement);
+        const statuses=[
+            {label:'New',       color: style.getPropertyValue('--color-primary').trim()  || '#00d4ff'},
+            {label:'Contacted', color: style.getPropertyValue('--color-warning').trim()  || '#ffb300'},
+            {label:'Qualified', color: style.getPropertyValue('--color-purple').trim()   || '#9b59ff'},
+            {label:'Call Back', color: '#00d4c8'},
+            {label:'Won',       color: style.getPropertyValue('--color-success').trim()  || '#00e676'},
+            {label:'Lost',      color: style.getPropertyValue('--color-danger').trim()   || '#ff3d57'}
+        ];
+        const bar=document.getElementById('pipeline-bar');bar.innerHTML='';
+        const leg=document.getElementById('pipeline-legend');leg.innerHTML='';
+        if(total>0){statuses.forEach(s=>{const cnt=c.filter(x=>x.status===s.label).length;if(cnt>0){const seg=document.createElement('div');seg.style.cssText=`width:${(cnt/total)*100}%;background:${s.color};transition:width .4s;`;seg.title=`${s.label}: ${cnt}`;bar.appendChild(seg);}const li=document.createElement('div');li.style.cssText='display:flex;align-items:center;gap:5px;';li.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${s.color};display:inline-block;flex-shrink:0;"></span><span style="color:var(--text-muted)">${s.label} (${c.filter(x=>x.status===s.label).length})</span>`;leg.appendChild(li);});}
+        const tbody=document.getElementById('recent-contacts-body');
+        const recent=c.slice(0,6);
+        if(!recent.length){tbody.innerHTML=`<tr><td colspan="4" class="empty-state" style="padding:20px;">No contacts yet.</td></tr>`;return;}
+        tbody.innerHTML=recent.map(x=>`<tr><td style="font-weight:500;">${Utils.esc(x.name)}</td><td style="color:var(--text-muted);">${Utils.esc(x.company||'—')}</td><td><span class="badge status-${x.status}">${x.status}</span></td><td style="color:var(--text-muted);">${Utils.fmtDate(x.created_at)}</td></tr>`).join('');
+    },
+
+    // Debounced search for contacts table (performance for 3000+ leads)
+    _contactSearchTimer: null,
+    _contactsPage: 1,
+    _contactsPerPage: 100,
+
+    renderContacts(filter='') {
+        // Debounce rapid keystrokes
+        if(this._contactSearchTimer) clearTimeout(this._contactSearchTimer);
+        this._contactSearchTimer=setTimeout(()=>this._doRenderContacts(filter), 150);
+    },
+
+    // Quiet re-render (no flash, used by SSE sync)
+    renderContactsQuiet(filter) {
+        const currentFilter=document.getElementById('search-contacts')?.value||'';
+        this._doRenderContacts(filter!==undefined?filter:currentFilter);
+    },
+
+    _doRenderContacts(filter='') {
+        const tbody=document.getElementById('contacts-table-body');
+        if(!tbody) return;
+        const f=filter.toLowerCase();
+        const contacts=AppState.contacts;
+        // Use pre-built index for fast filtering on large sets
+        const list = f
+            ? contacts.filter(c=>c.name.toLowerCase().includes(f)||c.email.toLowerCase().includes(f)||(c.company||'').toLowerCase().includes(f))
+            : contacts;
+        if(!list.length){tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><i class="ph ph-users"></i>${filter?'No contacts match.':'No contacts yet.'}</div></td></tr>`;return;}
+        // Paginate: render up to 100 rows at a time — use DocumentFragment for perf
+        const page=this._contactsPage||1;
+        const perPage=this._contactsPerPage;
+        const start=(page-1)*perPage, end=Math.min(start+perPage, list.length);
+        const slice=list.slice(start,end);
+        const frag=document.createDocumentFragment();
+        const tmp=document.createElement('tbody');
+        tmp.innerHTML=slice.map(c=>`<tr><td style="font-weight:500;">${Utils.esc(c.name)}</td><td style="color:var(--text-muted);">${Utils.esc(c.email)}</td><td style="color:var(--text-muted);">${Utils.esc(c.company||'—')}</td><td><span class="badge status-${c.status}">${c.status}</span></td><td class="td-actions"><div class="td-actions-inner"><button class="btn btn-ghost btn-sm" onclick="UI.viewContact('${c.id}')"><i class="ph ph-eye"></i></button><button class="btn btn-ghost btn-sm" onclick="UI.editContact('${c.id}')"><i class="ph ph-pencil-simple"></i></button></div></td></tr>`).join('');
+        tbody.replaceChildren(...tmp.childNodes);
+        // Render pagination footer if needed
+        this._renderContactsPagination(list.length, page, Math.ceil(list.length/perPage)||1, filter);
+    },
+
+    _renderContactsPagination(total, page, totalPages, filter) {
+        let pag=document.getElementById('contacts-pagination');
+        if(!pag){
+            pag=document.createElement('div');pag.id='contacts-pagination';
+            pag.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border-color);font-size:.82rem;background:var(--bg-surface);border-radius:0 0 var(--radius-md) var(--radius-md);flex-wrap:wrap;gap:8px;';
+            document.querySelector('.table-wrap')?.appendChild(pag);
+        }
+        if(totalPages<=1){pag.innerHTML='';return;}
+        const start=(page-1)*this._contactsPerPage+1, end=Math.min(page*this._contactsPerPage,total);
+        const esc_f=Utils.esc(filter||'');
+        pag.innerHTML=`<span style="color:var(--text-muted);">Showing ${start}–${end} of ${total} contacts</span>
+        <div style="display:flex;gap:4px;">
+            <button onclick="UI._goContactsPage(1,'${esc_f}')" ${page===1?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-double-left"></i></button>
+            <button onclick="UI._goContactsPage(${page-1},'${esc_f}')" ${page===1?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-left"></i></button>
+            <span style="padding:3px 10px;background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-sm);font-weight:600;">${page} / ${totalPages}</span>
+            <button onclick="UI._goContactsPage(${page+1},'${esc_f}')" ${page===totalPages?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-right"></i></button>
+            <button onclick="UI._goContactsPage(${totalPages},'${esc_f}')" ${page===totalPages?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-double-right"></i></button>
+        </div>`;
+    },
+
+    _goContactsPage(page,filter){this._contactsPage=page;this._doRenderContacts(filter||'');},
+
+    renderPipeline() {
+        this._doRenderPipeline(true);
+    },
+
+    // Quiet version — no fadeIn animation on cards, used by SSE sync
+    renderPipelineQuiet() {
+        this._doRenderPipeline(false);
+    },
+
+    // Cap pipeline cards per column to avoid DOM overload (3000+ cards would freeze)
+    _pipelinePageSize: 50,
+    _pipelinePages: {},
+
+    _doRenderPipeline(withAnimation) {
+        const statuses=['New','Contacted','Qualified','Call Back','Won','Lost'];
+        // Group contacts by status in one pass (O(n) instead of 6x O(n))
+        const byStatus={};
+        statuses.forEach(s=>byStatus[s]=[]);
+        AppState.contacts.forEach(c=>{if(byStatus[c.status])byStatus[c.status].push(c);});
+
+        statuses.forEach(status=>{
+            const slug=status.toLowerCase().replace(/\s+/g,'-');
+            const col=document.getElementById(`col-${slug}`);
+            const cnt=document.getElementById(`count-${slug}`);
+            if(!col||!cnt)return;
+            const list=byStatus[status];
+            cnt.textContent=list.length;
+
+            const page=this._pipelinePages[status]||1;
+            const perPage=this._pipelinePageSize;
+            const slice=list.slice(0, page*perPage); // show up to page*perPage cards
+
+            const cardAnim=withAnimation?'animation:fadeIn .3s ease-out;':'animation:none;';
+
+            let html;
+            if(!slice.length){
+                html=`<div style="text-align:center;color:var(--text-dim);font-size:.78rem;padding:20px 0;">Drop cards here</div>`;
+            } else {
+                html=slice.map(c=>`<div class="kanban-card" draggable="true" data-id="${c.id}" style="${cardAnim}"><div class="kanban-card-title">${Utils.esc(c.name)}</div><div class="kanban-card-company">${Utils.esc(c.company||c.email)}</div><div class="kanban-card-footer"><span><i class="ph ph-clock"></i> ${Utils.fmtDate(c.updated_at)}</span><button class="icon-btn" style="padding:2px;width:22px;height:22px;" onclick="UI.viewContact('${c.id}')"><i class="ph ph-arrow-right"></i></button></div></div>`).join('');
+                if(list.length>slice.length){
+                    html+=`<button onclick="UI._loadMorePipeline('${status}')" class="btn btn-outline btn-sm" style="width:100%;margin-top:6px;font-size:.75rem;"><i class="ph ph-caret-down"></i> Load more (${list.length-slice.length} remaining)</button>`;
+                }
+            }
+
+            col.innerHTML=html;
+            col.querySelectorAll('.kanban-card').forEach(card=>{
+                card.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',card.dataset.id);setTimeout(()=>card.style.opacity='.4',0);});
+                card.addEventListener('dragend',()=>card.style.opacity='1');
+            });
+        });
+    },
+
+    _loadMorePipeline(status){
+        this._pipelinePages[status]=(this._pipelinePages[status]||1)+1;
+        this._doRenderPipeline(false);
+    },
+
+    async viewContact(id) {
+        const c=(AppState._contactMap&&AppState._contactMap.get(id))||AppState.contacts.find(x=>x.id===id);if(!c)return;
+        document.getElementById('detail-content').innerHTML=`<div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;"><div class="avatar" style="width:56px;height:56px;font-size:1.4rem;">${c.name.charAt(0).toUpperCase()}</div><div><h3 style="font-size:1.3rem;margin-bottom:5px;">${Utils.esc(c.name)}</h3><span class="badge status-${c.status}">${c.status}</span></div></div><div class="detail-group"><div class="detail-label">Email</div><div class="detail-value"><a href="mailto:${Utils.esc(c.email)}">${Utils.esc(c.email)}</a></div></div><div class="detail-group"><div class="detail-label">Phone</div><div class="detail-value">${Utils.esc(c.phone||'—')}</div></div><div class="detail-group"><div class="detail-label">Company</div><div class="detail-value">${Utils.esc(c.company||'—')}</div></div><div class="detail-group"><div class="detail-label">Notes</div><div class="detail-value" style="white-space:pre-wrap;color:var(--text-muted);font-size:.85rem;">${Utils.esc(c.notes||'No notes.')}</div></div><div style="margin-top:20px;font-size:.75rem;color:var(--text-dim);">Created: ${Utils.fmtDate(c.created_at)} · Updated: ${Utils.fmtDate(c.updated_at)}</div>`;
+        const eb=document.getElementById('detail-edit-btn'),db_=document.getElementById('detail-delete-btn');
+        const ne=eb.cloneNode(true),nd=db_.cloneNode(true);
+        eb.replaceWith(ne);db_.replaceWith(nd);
+        document.getElementById('detail-delete-btn').style.display=AppState.isAdmin()?'':'none';
+        document.getElementById('detail-edit-btn').onclick=()=>{this.closeDetailPanel();this.editContact(id);};
+        document.getElementById('detail-delete-btn').onclick=()=>{
+            Confirm.show(`Delete "${c.name}"? This cannot be undone.`,async()=>{
+                try{await API.deleteContact(id);Utils.showToast('Contact deleted');this.closeDetailPanel();}
+                catch(e){Utils.showToast(e.message,'error');}
+            },'Delete','btn-danger');
+        };
+        document.getElementById('contact-detail-panel').classList.add('open');
+    },
+
+    closeDetailPanel() { document.getElementById('contact-detail-panel').classList.remove('open'); },
+
+    editContact(id) {
+        const c=(AppState._contactMap&&AppState._contactMap.get(id))||AppState.contacts.find(x=>x.id===id);if(!c)return;
+        document.getElementById('contact-id').value=c.id;
+        document.getElementById('contact-name').value=c.name;
+        document.getElementById('contact-email').value=c.email;
+        document.getElementById('contact-phone').value=c.phone||'';
+        document.getElementById('contact-company').value=c.company||'';
+        document.getElementById('contact-status').value=c.status;
+        document.getElementById('contact-notes').value=c.notes||'';
+        const ia=AppState.isAdmin();
+        ['contact-name','contact-email','contact-phone','contact-company'].forEach(fid=>{
+            const el=document.getElementById(fid);if(ia)el.removeAttribute('readonly');else el.setAttribute('readonly','');
+        });
+        document.getElementById('readonly-notice').style.display=ia?'none':'flex';
+        document.getElementById('modal-title').textContent=ia?'Edit Contact':'Edit Contact (Status & Notes only)';
+        document.getElementById('contact-modal').classList.add('active');
+    },
+
+    closeContactModal() { document.getElementById('contact-modal').classList.remove('active'); }
+};
+
+// ── 7. ADMIN CONTROL PANEL ────────────────────────────
+const AdminCP = {
+    _allContacts:[],_allUsers:[],_contactFilter:'',_uploadLeads:[],_uploadFmt:'csv',
+
+    async refreshAll() {
+        if(!AppState.isAdmin())return;
+        try {
+            [this._allContacts,this._allUsers]=await Promise.all([API.getContacts(),API.getUsers()]);
+            this.renderOverview();this.renderUsers();this.renderContacts();
+        } catch(e){Utils.showToast('Admin load error: '+e.message,'error');}
+    },
+
+    async _refreshContactsOnly() {
+        try {
+            this._allContacts=await API.getContacts();
+            this.renderContacts(); this.renderOverview(); this.renderUsers();
+            const leadsModal = document.getElementById('user-leads-modal');
+            if (leadsModal && leadsModal.classList.contains('active')) {
+                const email = leadsModal.dataset.email;
+                if (email) {
+                    const leads = this._allContacts.filter(c => c.user_email === email);
+                    document.getElementById('user-leads-modal-subtitle').textContent =
+                        `${leads.length} contact${leads.length !== 1 ? 's' : ''} · ${leads.filter(c=>c.status==='Won').length} Won · ${leads.filter(c=>c.status==='Lost').length} Lost · ${leads.filter(c=>c.status==='Call Back').length} Call Back`;
+                    const activeFilter = document.querySelector('.user-leads-filter-btn.active')?.dataset.status || 'all';
+                    const filtered = activeFilter === 'all' ? leads : leads.filter(c => c.status === activeFilter);
+                    this.renderUserLeadsTable(filtered, email);
+                }
+            }
+        } catch(e){}
+    },
+    async _refreshUsersOnly() {
+        try {
+            this._allUsers=await API.getUsers();
+            this.renderUsers(); this.renderOverview();
+        } catch(e){}
+    },
+
+    async renderOverview() {
+        const u=this._allUsers,c=this._allContacts;
+        document.getElementById('admin-stat-users').textContent=u.length;
+        document.getElementById('admin-stat-admins').textContent=u.filter(x=>x.role==='admin').length;
+        document.getElementById('admin-stat-contacts').textContent=c.length;
+        document.getElementById('admin-stat-active').textContent=u.filter(x=>x.active).length;
+        document.getElementById('admin-stat-won').textContent=c.filter(x=>x.status==='Won').length;
+        document.getElementById('admin-stat-lost').textContent=c.filter(x=>x.status==='Lost').length;
+        try {
+            const log=await API.getActivity();
+            const wrap=document.getElementById('admin-activity-log');
+            if(!log.length){wrap.innerHTML=`<div class="empty-state"><i class="ph ph-clock"></i>No activity yet.</div>`;return;}
+            wrap.innerHTML=log.map(item=>`<div class="activity-item"><div class="activity-icon ${item.color}"><i class="ph ${item.icon}"></i></div><div class="activity-text"><div><strong>${Utils.esc(item.action)}</strong>: ${Utils.esc(item.detail)}</div><div class="activity-time"><i class="ph ph-user"></i> ${Utils.esc(item.actor)} · ${Utils.fmtTime(item.ts)}</div></div></div>`).join('');
+        }catch(e){}
+    },
+
+    renderUsers() {
+        const tbody=document.getElementById('admin-users-tbody');
+        const users=[...this._allUsers].sort((a,b)=>(Number(a.created_at)||0)-(Number(b.created_at)||0));
+        const ac=this._allContacts;
+        if(!users.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><i class="ph ph-users-three"></i>No users.</div></td></tr>`;return;}
+        const adminCnt=users.filter(u=>u.role==='admin'&&u.active).length;
+        tbody.innerHTML=users.map(u=>{
+            const self=u.email===AppState.user.email,ia=!!u.active,iadm=u.role==='admin',last=iadm&&adminCnt<=1;
+            const uC=ac.filter(c=>c.user_email===u.email),uW=uC.filter(c=>c.status==='Won').length,uL=uC.filter(c=>c.status==='Lost').length;
+            const prot=self||last;
+            return `<tr>
+                <td style="font-weight:500;">${Utils.esc(u.email)}${self?`<span class="badge badge-purple" style="margin-left:4px;">You</span>`:''}${last?`<span class="badge badge-amber" style="margin-left:4px;"><i class="ph ph-shield-check"></i></span>`:''}</td>
+                <td>${iadm?`<span class="badge badge-amber">Admin</span>`:`<span class="badge badge-blue">User</span>`}</td>
+                <td>${ia?`<span class="badge badge-green">Active</span>`:`<span class="badge badge-gray">Inactive</span>`}</td>
+                <td style="text-align:center;color:var(--text-muted);">${uC.length}</td>
+                <td style="text-align:center;">${uW>0?`<span class="badge badge-green" style="font-weight:700;">${uW}</span>`:`<span style="color:var(--text-dim);">—</span>`}</td>
+                <td style="text-align:center;">${uL>0?`<span class="badge badge-red" style="font-weight:700;">${uL}</span>`:`<span style="color:var(--text-dim);">—</span>`}</td>
+                <td style="color:var(--text-muted);">${Utils.fmtDate(u.created_at)}</td>
+                <td style="color:var(--text-muted);">${Utils.fmtDate(u.last_login)}</td>
+                <td class="td-actions">
+                    <div class="td-actions-inner">
+                    ${!iadm ? `<button class="btn btn-ghost btn-sm" title="View user leads" onclick="AdminCP.openUserLeads('${Utils.esc(u.email)}')" style="color:var(--color-accent);" ${!uC.length?'disabled':''}><i class="ph ph-address-book"></i>${uC.length>0?`<span style="font-size:.7rem;font-weight:700;margin-left:1px;">${uC.length}</span>`:''}</button>
+                    <button class="btn btn-ghost btn-sm" title="Download leads as CSV" onclick="AdminCP.downloadUserLeads('${Utils.esc(u.email)}')" style="color:var(--color-success);" ${!uC.length?'disabled':''}><i class="ph ph-download-simple"></i></button>
+                    <button class="btn btn-ghost btn-sm" title="Upload leads" onclick="AdminCP.openUploadLeadsModal('${Utils.esc(u.email)}')"><i class="ph ph-upload-simple" style="color:var(--color-primary);"></i></button>` : ''}
+                    <button class="btn btn-ghost btn-sm" title="Edit" onclick="AdminCP.openEditUser('${Utils.esc(u.email)}')"><i class="ph ph-pencil-simple"></i></button>
+                    <button class="btn btn-ghost btn-sm" onclick="AdminCP.toggleUser('${Utils.esc(u.email)}')" ${prot?'disabled':''}><i class="ph ${ia?'ph-toggle-right':'ph-toggle-left'}" style="color:${ia?'var(--color-success)':'var(--text-dim)'}"></i></button>
+                    <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);" onclick="AdminCP.deleteUser('${Utils.esc(u.email)}')" ${prot?'disabled':''}><i class="ph ph-trash"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    },
+
+    openAddUser(){document.getElementById('admin-add-user-form').reset();document.getElementById('pwd-strength-bar').className='pwd-strength';document.getElementById('pwd-strength-label').innerHTML='<i class="ph ph-info"></i> Minimum 6 characters';document.getElementById('admin-add-user-modal').classList.add('active');},
+    closeAddUserModal(){document.getElementById('admin-add-user-modal').classList.remove('active');},
+
+    openEditUser(email){
+        const u=this._allUsers.find(x=>x.email===email);if(!u)return;
+        document.getElementById('edit-user-email-key').value=u.email;
+        document.getElementById('edit-user-email').value=u.email;
+        document.getElementById('edit-user-password').value='';
+        document.getElementById('edit-user-role').value=u.role||'user';
+        document.getElementById('edit-user-active').value=String(!!u.active);
+        document.getElementById('edit-pwd-strength-bar').className='pwd-strength';
+        document.getElementById('edit-pwd-strength-label').innerHTML='<i class="ph ph-info"></i> Leave blank to keep existing password.';
+        document.getElementById('admin-edit-user-modal').classList.add('active');
+    },
+    closeEditUserModal(){document.getElementById('admin-edit-user-modal').classList.remove('active');},
+
+    checkPwdStrength(v,b='pwd-strength-bar',l='pwd-strength-label'){
+        const bar=document.getElementById(b),lbl=document.getElementById(l);
+        if(!v){bar.className='pwd-strength';lbl.innerHTML='<i class="ph ph-info"></i> Minimum 6 characters';return;}
+        const s=(v.length>=6?1:0)+(v.length>=10?1:0)+(/[A-Z]/.test(v)?1:0)+(/[0-9]/.test(v)?1:0)+(/[^A-Za-z0-9]/.test(v)?1:0);
+        if(s<=2){bar.className='pwd-strength weak';lbl.innerHTML='<i class="ph ph-warning" style="color:var(--color-danger)"></i> Weak';}
+        else if(s<=3){bar.className='pwd-strength medium';lbl.innerHTML='<i class="ph ph-shield" style="color:var(--color-warning)"></i> Medium';}
+        else{bar.className='pwd-strength strong';lbl.innerHTML='<i class="ph ph-shield-check" style="color:var(--color-success)"></i> Strong';}
+    },
+
+    async toggleUser(email){try{await API.toggleUser(email);Utils.showToast('User status updated');}catch(e){Utils.showToast(e.message,'error');}},
+
+    deleteUser(email){
+        Confirm.show(`Delete user "${email}"? This cannot be undone.`,async()=>{
+            try{await API.deleteUser(email);Utils.showToast('User deleted');}catch(e){Utils.showToast(e.message,'error');}
+        },'Delete User','btn-danger');
+    },
+
+    // ── USER LEADS MODAL ────────────────────────────
+    openUserLeads(email) {
+        const user = this._allUsers.find(u => u.email === email);
+        if (!user) return;
+        const leads = this._allContacts.filter(c => c.user_email === email).sort((a,b) => Number(b.created_at) - Number(a.created_at));
+
+        document.getElementById('user-leads-modal-title').textContent = email;
+        document.getElementById('user-leads-modal-subtitle').textContent =
+            `${leads.length} contact${leads.length !== 1 ? 's' : ''} · ${leads.filter(c=>c.status==='Won').length} Won · ${leads.filter(c=>c.status==='Lost').length} Lost · ${leads.filter(c=>c.status==='Call Back').length} Call Back`;
+
+        document.getElementById('user-leads-modal').dataset.email = email;
+
+        this.renderUserLeadsTable(leads, email);
+        document.getElementById('user-leads-modal').classList.add('active');
+    },
+
+    _userLeadsPage: 1,
+    _userLeadsPerPage: 50,
+    _userLeadsCurrentList: [],
+
+    renderUserLeadsTable(leads, email) {
+        this._userLeadsCurrentList = leads;
+        this._userLeadsPage = 1;
+        this._renderUserLeadsPage(email);
+    },
+
+    _renderUserLeadsPage(email) {
+        const tbody = document.getElementById('user-leads-tbody');
+        const leads = this._userLeadsCurrentList;
+        const page = this._userLeadsPage;
+        const perPage = this._userLeadsPerPage;
+        const totalPages = Math.ceil(leads.length / perPage) || 1;
+        const start = (page - 1) * perPage;
+        const slice = leads.slice(start, start + perPage);
+
+        if (!leads.length) {
+            tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state" style="padding:28px;"><i class="ph ph-address-book"></i>No contacts match.</div></td></tr>`;
+            this._renderUserLeadsPagination(email, 0, 1, 1);
+            return;
+        }
+
+        tbody.innerHTML = slice.map(c => `
+            <tr id="lead-row-${c.id}">
+                <td style="font-weight:500;">${Utils.esc(c.name)}</td>
+                <td style="color:var(--text-muted);font-size:.82rem;">${Utils.esc(c.email)}</td>
+                <td style="color:var(--text-muted);font-size:.82rem;">${Utils.esc(c.phone||'—')}</td>
+                <td style="color:var(--text-muted);font-size:.82rem;">${Utils.esc(c.company||'—')}</td>
+                <td>
+                    <select class="lead-status-select" data-id="${c.id}" data-email="${Utils.esc(email)}"
+                        style="background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-main);padding:4px 8px;font-size:.8rem;cursor:pointer;width:115px;">
+                        ${['New','Contacted','Qualified','Call Back','Won','Lost'].map(s =>
+                            `<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`
+                        ).join('')}
+                    </select>
+                </td>
+                <td style="color:var(--text-muted);font-size:.78rem;">${Utils.fmtDate(c.updated_at)}</td>
+                <td class="td-actions">
+                    <div class="td-actions-inner">
+                    <button class="btn btn-ghost btn-sm" title="Edit all fields"
+                        onclick="AdminCP.editLeadFromPanel('${c.id}')">
+                        <i class="ph ph-pencil-simple"></i>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);" title="Delete"
+                        onclick="AdminCP.deleteLeadFromPanel('${c.id}','${Utils.esc(c.name).replace(/'/g,"\\'")}','${Utils.esc(email)}')">
+                        <i class="ph ph-trash"></i>
+                    </button>
+                    </div>
+                </td>
+            </tr>`).join('');
+
+        tbody.querySelectorAll('.lead-status-select').forEach(sel => {
+            sel.addEventListener('change', async (e) => {
+                const id = sel.dataset.id;
+                const newStatus = e.target.value;
+                sel.style.opacity = '.5';
+                sel.disabled = true;
+                try {
+                    await API.updateContact(id, { status: newStatus });
+                    Utils.showToast(`Status → ${newStatus}`);
+                    const c = this._allContacts.find(x => x.id === id);
+                    if (c) { c.status = newStatus; c.updated_at = Date.now(); }
+                    const userEmail = sel.dataset.email;
+                    const allLeads = this._allContacts.filter(x => x.user_email === userEmail);
+                    document.getElementById('user-leads-modal-subtitle').textContent =
+                        `${allLeads.length} contact${allLeads.length !== 1 ? 's' : ''} · ${allLeads.filter(x=>x.status==='Won').length} Won · ${allLeads.filter(x=>x.status==='Lost').length} Lost · ${allLeads.filter(x=>x.status==='Call Back').length} Call Back`;
+                    this.renderUsers();
+                    this.renderOverview();
+                    this.renderContacts();
+                } catch(err) {
+                    Utils.showToast(err.message, 'error');
+                    const orig = this._allContacts.find(x => x.id === id);
+                    if (orig) sel.value = orig.status;
+                } finally {
+                    sel.style.opacity = '1';
+                    sel.disabled = false;
+                }
+            });
+        });
+
+        this._renderUserLeadsPagination(email, leads.length, page, totalPages);
+    },
+
+    _renderUserLeadsPagination(email, total, page, totalPages) {
+        let pag = document.getElementById('user-leads-pagination');
+        if (!pag) {
+            pag = document.createElement('div');
+            pag.id = 'user-leads-pagination';
+            pag.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border-color);font-size:.82rem;flex-wrap:wrap;background:var(--bg-surface);';
+            const tableWrap = document.querySelector('#user-leads-modal .modal-body');
+            if (tableWrap) tableWrap.appendChild(pag);
+        }
+        if (totalPages <= 1) { pag.innerHTML = ''; return; }
+        const start = (page-1)*this._userLeadsPerPage+1;
+        const end = Math.min(page*this._userLeadsPerPage, total);
+        pag.innerHTML = `
+            <span style="color:var(--text-muted);">Showing ${start}–${end} of ${total}</span>
+            <div style="display:flex;gap:4px;">
+                <button onclick="AdminCP._goUserLeadsPage('${email}',1)" ${page===1?'disabled':''} class="btn btn-ghost btn-sm" style="padding:3px 7px;"><i class="ph ph-caret-double-left"></i></button>
+                <button onclick="AdminCP._goUserLeadsPage('${email}',${page-1})" ${page===1?'disabled':''} class="btn btn-ghost btn-sm" style="padding:3px 7px;"><i class="ph ph-caret-left"></i></button>
+                <span style="padding:3px 12px;background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-sm);font-weight:600;">Page ${page} / ${totalPages}</span>
+                <button onclick="AdminCP._goUserLeadsPage('${email}',${page+1})" ${page===totalPages?'disabled':''} class="btn btn-ghost btn-sm" style="padding:3px 7px;"><i class="ph ph-caret-right"></i></button>
+                <button onclick="AdminCP._goUserLeadsPage('${email}',${totalPages})" ${page===totalPages?'disabled':''} class="btn btn-ghost btn-sm" style="padding:3px 7px;"><i class="ph ph-caret-double-right"></i></button>
+            </div>`;
+    },
+
+    _goUserLeadsPage(email, page) {
+        this._userLeadsPage = page;
+        this._renderUserLeadsPage(email);
+    },
+
+    closeUserLeadsModal() {
+        document.getElementById('user-leads-modal').classList.remove('active');
+        // clear pagination element so it gets recreated fresh next time
+        const pag = document.getElementById('user-leads-pagination');
+        if (pag) pag.remove();
+    },
+
+    downloadUserLeads(email) {
+        const leads = this._allContacts.filter(c => c.user_email === email).sort((a,b) => Number(b.created_at) - Number(a.created_at));
+        if (!leads.length) { Utils.showToast('No leads to download.', 'warning'); return; }
+        const header = ['Name','Email','Phone','Company','Status','Notes','Created','Updated'];
+        const rows = leads.map(c => [
+            c.name, c.email, c.phone||'', c.company||'', c.status, (c.notes||'').replace(/\n/g,' '),
+            Utils.fmtDate(c.created_at), Utils.fmtDate(c.updated_at)
+        ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+        const csv = [header.join(','), ...rows].join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const safeEmail = email.replace(/[^a-z0-9]/gi, '_');
+        a.href = url; a.download = `leads_${safeEmail}_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        Utils.showToast(`Downloaded ${leads.length} leads for ${email}`);
+    },
+
+    editLeadFromPanel(id) {
+        this.openEditContact(id);
+    },
+
+    deleteLeadFromPanel(id, name, email) {
+        Confirm.show(`Delete "${name}"? This cannot be undone.`, async () => {
+            try {
+                await API.deleteContact(id);
+                Utils.showToast('Contact deleted');
+                this._allContacts = this._allContacts.filter(c => c.id !== id);
+                const remaining = this._allContacts.filter(c => c.user_email === email);
+                document.getElementById('user-leads-modal-subtitle').textContent =
+                    `${remaining.length} contact${remaining.length !== 1 ? 's' : ''} · ${remaining.filter(c=>c.status==='Won').length} Won · ${remaining.filter(c=>c.status==='Lost').length} Lost · ${remaining.filter(c=>c.status==='Call Back').length} Call Back`;
+                this.renderUserLeadsTable(remaining, email);
+                this.renderUsers();
+                this.renderOverview();
+                this.renderContacts();
+            } catch(e) { Utils.showToast(e.message, 'error'); }
+        }, 'Delete', 'btn-danger');
+    },
+
+    // ── DELETE BY STATUS ────────────────────────────────
+    deleteByStatus(email, status) {
+        if(!email) return;
+        const targets = this._allContacts.filter(c => c.user_email === email && c.status === status);
+        if(!targets.length){ Utils.showToast(`No "${status}" leads to delete.`, 'warning'); return; }
+        const ids = targets.map(c => c.id);
+        Confirm.show(
+            `Delete all ${ids.length} "${status}" leads for ${email}? This cannot be undone.`,
+            async () => {
+                this._showDeleteProgress(`${status} leads`, ids.length);
+                await this._runBulkDelete(ids, email, `${status} leads`, null /* keep other statuses */);
+            },
+            `Delete ${ids.length} ${status}`,
+            'btn-danger'
+        );
+    },
+
+    // ── CLEAR ALL LEADS ──────────────────────────────────
+    clearAllUserLeads(email) {
+        if(!email) return;
+        const count = this._allContacts.filter(c => c.user_email === email).length;
+        if(!count){ Utils.showToast('No leads to clear.', 'warning'); return; }
+        Confirm.show(
+            `Delete ALL ${count} leads for ${email}? This cannot be undone.`,
+            async () => {
+                this._showDeleteProgress(email, count);
+                await this._runBulkDelete(null, email, null, null);
+            },
+            'Delete All',
+            'btn-danger'
+        );
+    },
+
+    // ── CORE BULK-DELETE ENGINE ───────────────────────────
+    // ids=null  → delete ALL for email (uses fast server endpoint)
+    // ids=array → delete specific IDs (uses bulk-delete endpoint, falls back to parallel)
+    async _runBulkDelete(ids, email, label, keepStatus) {
+        const total = ids ? ids.length : this._allContacts.filter(c => c.user_email === email).length;
+        let failed = 0;
+
+        try {
+            if (!ids) {
+                // Fastest path: single DELETE /api/contacts/user/:email — one SQL statement on server
+                await API.deleteAllUserContacts(email);
+            } else {
+                // Fast path: one POST with all IDs → server does DELETE WHERE id IN (...)
+                await API.bulkDeleteContacts(ids);
+            }
+            this._updateDeleteProgress(total, total);
+        } catch(e) {
+            // ── FALLBACK: server doesn't have bulk endpoints yet ──
+            // Fire ALL requests simultaneously — no sequential batching.
+            // Browser caps concurrent requests at ~6 per host automatically.
+            // This is the fastest possible without server changes.
+            const allIds = ids || this._allContacts.filter(c => c.user_email === email).map(c => c.id);
+            const CHUNK = 100; // send 100 at a time to avoid request queue overflow
+            let done = 0;
+            for(let i = 0; i < allIds.length; i += CHUNK) {
+                const slice = allIds.slice(i, i + CHUNK);
+                const results = await Promise.allSettled(slice.map(id => API.deleteContact(id)));
+                done += slice.length;
+                failed += results.filter(r => r.status === 'rejected').length;
+                this._updateDeleteProgress(done, allIds.length);
+            }
+        }
+
+        // ── Update local state instantly (no reload needed) ──
+        if (!ids) {
+            this._allContacts = this._allContacts.filter(c => c.user_email !== email);
+            AppState.contacts  = AppState.contacts.filter(c => c.user_email !== email);
+        } else {
+            const idSet = new Set(ids);
+            this._allContacts = this._allContacts.filter(c => !idSet.has(c.id));
+            AppState.contacts  = AppState.contacts.filter(c => !idSet.has(c.id));
+        }
+        AppState._contactMap = new Map(AppState.contacts.map(c => [c.id, c]));
+
+        // Remove progress bar, re-enable buttons
+        const prog = document.getElementById('clear-leads-progress');
+        if(prog) prog.remove();
+        document.querySelectorAll('#user-leads-modal button[disabled]').forEach(b => b.disabled = false);
+
+        const deleted = total - failed;
+        const subject = label || `leads for ${email}`;
+        Utils.showToast(
+            failed > 0 ? `Deleted ${deleted} ${subject} (${failed} failed).` : `${deleted} ${subject} deleted.`,
+            failed > 0 ? 'warning' : 'success'
+        );
+
+        // Refresh modal
+        const remaining = this._allContacts.filter(c => c.user_email === email);
+        document.getElementById('user-leads-modal-subtitle').textContent =
+            `${remaining.length} contact${remaining.length !== 1 ? 's' : ''} · ${remaining.filter(c=>c.status==='Won').length} Won · ${remaining.filter(c=>c.status==='Lost').length} Lost · ${remaining.filter(c=>c.status==='Call Back').length} Call Back`;
+        // Reset filter to All so user sees current state
+        document.querySelectorAll('.user-leads-filter-btn').forEach(b => { b.classList.remove('active'); b.style.outline='none'; });
+        const allBtn = document.querySelector('.user-leads-filter-btn[data-status="all"]');
+        if(allBtn) { allBtn.classList.add('active'); allBtn.style.outline='2px solid currentColor'; allBtn.style.outlineOffset='2px'; }
+        this.renderUserLeadsTable(remaining, email);
+        this.renderUsers();
+        this.renderOverview();
+        this.renderContacts();
+        UI.renderDashboard();
+        UI.renderContactsQuiet();
+        UI.renderPipelineQuiet();
+    },
+
+    _showDeleteProgress(label, total) {
+        document.querySelectorAll('#user-leads-modal .modal-footer .btn').forEach(b => b.disabled = true);
+        let prog = document.getElementById('clear-leads-progress');
+        if(!prog) {
+            prog = document.createElement('div');
+            prog.id = 'clear-leads-progress';
+            prog.style.cssText = 'position:sticky;top:0;z-index:20;background:var(--bg-surface);border-bottom:1px solid var(--border-color);padding:12px 16px;';
+            const modalBody = document.querySelector('#user-leads-modal .modal-body');
+            if(modalBody) modalBody.prepend(prog);
+        }
+        prog.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:.85rem;font-weight:600;color:var(--color-danger);">
+                    <i class="ph ph-spinner" style="animation:spin 1s linear infinite;margin-right:6px;"></i>
+                    Deleting ${Utils.esc(String(label))}…
+                </span>
+                <span id="clear-leads-count" style="font-size:.82rem;color:var(--text-muted);">0 / ${total}</span>
+            </div>
+            <div style="height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;">
+                <div id="clear-leads-bar" style="height:100%;width:0%;background:var(--color-danger);transition:width .15s ease;border-radius:3px;"></div>
+            </div>`;
+    },
+
+    _updateDeleteProgress(done, total) {
+        const bar = document.getElementById('clear-leads-bar');
+        const lbl = document.getElementById('clear-leads-count');
+        const pct = total > 0 ? Math.round((done/total)*100) : 100;
+        if(bar) bar.style.width = `${pct}%`;
+        if(lbl) lbl.textContent = `${done} / ${total}`;
+    },
+
+    _toggleDeleteByStatusMenu() {
+        const menu = document.getElementById('delete-by-status-menu');
+        if(!menu) return;
+        const isOpen = menu.style.display !== 'none';
+        menu.style.display = isOpen ? 'none' : 'block';
+        if(!isOpen) {
+            // Auto-close when clicking outside
+            const close = (e) => {
+                if(!document.getElementById('delete-by-status-wrap')?.contains(e.target)) {
+                    menu.style.display = 'none';
+                    document.removeEventListener('click', close, true);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', close, true), 10);
+        }
+    },
+
+    _deleteByStatusFromMenu(status) {
+        document.getElementById('delete-by-status-menu').style.display = 'none';
+        const email = document.getElementById('user-leads-modal').dataset.email;
+        if(!email) return;
+        this.deleteByStatus(email, status);
+    },
+
+    openUploadLeadsModal(preset=''){
+        const sel=document.getElementById('upload-leads-target-user');
+        sel.innerHTML='<option value="">— Select a user account —</option>'+this._allUsers.filter(u=>u.active).sort((a,b)=>a.email.localeCompare(b.email)).map(u=>`<option value="${Utils.esc(u.email)}" ${u.email===preset?'selected':''}>${Utils.esc(u.email)} (${u.role})</option>`).join('');
+        this._uploadLeads=[];this._uploadFmt='csv';
+        ['upload-fmt-csv','upload-fmt-json','upload-fmt-manual'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'':'none');
+        document.getElementById('upload-preview-wrap').style.display='none';
+        document.getElementById('upload-leads-submit-btn').disabled=true;
+        ['manual-leads-input','csv-file-input','json-leads-file-input'].forEach(id=>{try{document.getElementById(id).value='';}catch(e){}});
+        document.querySelectorAll('.upload-fmt-tab').forEach(t=>{t.style.background='transparent';t.style.color='var(--text-muted)';});
+        const first=document.querySelector('.upload-fmt-tab[data-fmt="csv"]');
+        if(first){first.style.background='var(--color-primary-light)';first.style.color='var(--color-primary)';}
+        document.getElementById('upload-leads-modal').classList.add('active');
+    },
+    closeUploadLeadsModal(){document.getElementById('upload-leads-modal').classList.remove('active');this._uploadLeads=[];},
+
+    switchUploadFmt(fmt,btn){
+        this._uploadFmt=fmt;
+        document.querySelectorAll('.upload-fmt-tab').forEach(t=>{t.style.background='transparent';t.style.color='var(--text-muted)';});
+        btn.style.background='var(--color-primary-light)';btn.style.color='var(--color-primary)';
+        ['csv','json','manual'].forEach(f=>{const el=document.getElementById(`upload-fmt-${f}`);if(el)el.style.display=f===fmt?'':'none';});
+        this.clearUploadPreview();
+    },
+
+    parseCSV(text){
+        const lines=text.split(/\r?\n/).filter(l=>l.trim());if(!lines.length)return{leads:[],errors:[]};
+        const leads=[],errors=[];
+        const fc=Utils.parseCSVLine(lines[0]).map(h=>h.toLowerCase().trim());
+        const hh=fc.includes('name')||fc.includes('email');
+        let cm={name:0,email:1,phone:2,company:3,status:4,notes:5},sr=0;
+        if(hh){sr=1;cm={};fc.forEach((h,i)=>cm[h]=i);}
+        const vs=new Set(['New','Contacted','Qualified','Call Back','Won','Lost']);
+        for(let i=sr;i<lines.length;i++){
+            const cols=Utils.parseCSVLine(lines[i]);
+            const name=(cols[cm.name??0]||'').trim(),email=(cols[cm.email??1]||'').trim();
+            if(!name||!email){errors.push(`Row ${i+1}: missing name or email`);continue;}
+            if(!email.includes('@')){errors.push(`Row ${i+1}: invalid email`);continue;}
+            let status=(cols[cm.status??4]||'').trim();if(!vs.has(status))status='New';
+            leads.push({name,email,phone:(cols[cm.phone??2]||'').trim(),company:(cols[cm.company??3]||'').trim(),status,notes:(cols[cm.notes??5]||'').trim()});
+        }
+        return{leads,errors};
+    },
+
+    parseManualText(text){
+        const lines=text.split(/\r?\n/).filter(l=>l.trim()),leads=[],errors=[],vs=new Set(['New','Contacted','Qualified','Call Back','Won','Lost']);
+        lines.forEach((line,i)=>{const c=line.split(',').map(s=>s.trim());const n=c[0],e=c[1];if(!n||!e){errors.push(`Line ${i+1}: missing name or email`);return;}if(!e.includes('@')){errors.push(`Line ${i+1}: invalid email`);return;}let st=c[4]||'New';if(!vs.has(st))st='New';leads.push({name:n,email:e,phone:c[2]||'',company:c[3]||'',status:st,notes:''});});
+        return{leads,errors};
+    },
+
+    stageLeads(leads,errors){
+        this._uploadLeads=leads;
+        const wrap=document.getElementById('upload-preview-wrap'),tbody=document.getElementById('upload-preview-tbody'),count=document.getElementById('upload-preview-count'),errDiv=document.getElementById('upload-error-list');
+        if(!leads.length&&!errors.length){wrap.style.display='none';return;}
+        wrap.style.display='';count.textContent=leads.length;
+        tbody.innerHTML=leads.map((l,i)=>`<tr><td style="color:var(--text-dim);">${i+1}</td><td style="font-weight:500;">${Utils.esc(l.name)}</td><td>${Utils.esc(l.email)}</td><td style="color:var(--text-muted);">${Utils.esc(l.phone||'—')}</td><td style="color:var(--text-muted);">${Utils.esc(l.company||'—')}</td><td><span class="badge status-${l.status}">${l.status}</span></td></tr>`).join('');
+        errDiv.innerHTML=errors.length?`<div style="padding:8px 12px;background:rgba(255,61,87,.07);border:1px solid rgba(255,61,87,.2);border-radius:var(--radius-sm);font-size:.78rem;color:var(--color-danger);margin-top:6px;"><strong><i class="ph ph-warning"></i> ${errors.length} row(s) skipped:</strong><ul style="margin-top:4px;padding-left:16px;">${errors.map(e=>`<li>${Utils.esc(e)}</li>`).join('')}</ul></div>`:'';
+        document.getElementById('upload-leads-submit-btn').disabled=leads.length===0;
+    },
+
+    clearUploadPreview(){this._uploadLeads=[];document.getElementById('upload-preview-wrap').style.display='none';document.getElementById('upload-leads-submit-btn').disabled=true;['csv-file-input','json-leads-file-input','manual-leads-input'].forEach(id=>{try{document.getElementById(id).value='';}catch(e){}});},
+
+    async submitLeadsUpload(){
+        const target=document.getElementById('upload-leads-target-user').value;
+        if(!target){Utils.showToast('Please select a target user.','warning');return;}
+        if(!this._uploadLeads.length){Utils.showToast('No leads to upload.','warning');return;}
+        try{
+            const result=await API.bulkContacts(this._uploadLeads,target);
+            this.closeUploadLeadsModal();
+            Utils.showToast(`${result.count} leads uploaded to ${target}`);
+        }catch(e){Utils.showToast(e.message,'error');}
+    },
+
+    _onUserLeadsSearch(val) {
+        const email = document.getElementById('user-leads-modal').dataset.email;
+        if (!email) return;
+        const activeFilter = document.querySelector('.user-leads-filter-btn.active')?.dataset.status || 'all';
+        let leads = this._allContacts.filter(c => c.user_email === email);
+        if (activeFilter !== 'all') leads = leads.filter(c => c.status === activeFilter);
+        if (val) {
+            const f = val.toLowerCase();
+            leads = leads.filter(c => c.name.toLowerCase().includes(f) || c.email.toLowerCase().includes(f) || (c.company||'').toLowerCase().includes(f) || (c.phone||'').toLowerCase().includes(f));
+        }
+        document.getElementById('user-leads-count-label').textContent = `${leads.length} shown`;
+        this.renderUserLeadsTable(leads, email);
+    },
+
+    _filterUserLeads(status, btn) {
+        document.querySelectorAll('.user-leads-filter-btn').forEach(b => {
+            b.style.fontWeight = '600';
+            b.style.outline = 'none';
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+        btn.style.outline = '2px solid currentColor';
+        btn.style.outlineOffset = '2px';
+
+        const email = document.getElementById('user-leads-modal').dataset.email;
+        if (!email) return;
+        const searchVal = (document.getElementById('user-leads-search')?.value || '').toLowerCase();
+        let leads = this._allContacts.filter(c => c.user_email === email);
+        if (status !== 'all') leads = leads.filter(c => c.status === status);
+        if (searchVal) leads = leads.filter(c => c.name.toLowerCase().includes(searchVal) || c.email.toLowerCase().includes(searchVal) || (c.company||'').toLowerCase().includes(searchVal) || (c.phone||'').toLowerCase().includes(searchVal));
+        document.getElementById('user-leads-count-label').textContent = `${leads.length} shown`;
+        this.renderUserLeadsTable(leads, email);
+    },
+
+        _adminContactsPage: 1,
+    _adminContactsPerPage: 100,
+    _adminSearchTimer: null,
+
+    renderContacts(filter) {
+        if(this._adminSearchTimer) clearTimeout(this._adminSearchTimer);
+        this._adminSearchTimer = setTimeout(()=>this._doAdminRenderContacts(filter), 150);
+    },
+
+    _doAdminRenderContacts(filter) {
+        const tbody=document.getElementById('admin-contacts-tbody');
+        if(!tbody) return;
+        const f=(filter!==undefined?filter:this._contactFilter).toLowerCase();
+        const list=this._allContacts.filter(c=>c.name.toLowerCase().includes(f)||c.email.toLowerCase().includes(f)||(c.company||'').toLowerCase().includes(f)).sort((a,b)=>Number(b.created_at)-Number(a.created_at));
+        if(!list.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><i class="ph ph-address-book"></i>${f?'No contacts match.':'No contacts yet.'}</div></td></tr>`;return;}
+        const page=this._adminContactsPage||1;
+        const perPage=this._adminContactsPerPage;
+        const start=(page-1)*perPage, end=Math.min(start+perPage, list.length);
+        const slice=list.slice(start,end);
+        const tmp=document.createElement('tbody');
+        tmp.innerHTML=slice.map(c=>`<tr><td style="font-weight:500;">${Utils.esc(c.name)}</td><td style="color:var(--text-muted);">${Utils.esc(c.email)}</td><td style="color:var(--text-muted);">${Utils.esc(c.phone||'—')}</td><td style="color:var(--text-muted);">${Utils.esc(c.company||'—')}</td><td><span class="badge status-${c.status}">${c.status}</span></td><td style="color:var(--text-dim);font-size:.78rem;">${Utils.esc(c.user_email)}</td><td class="td-actions"><div class="td-actions-inner"><button class="btn btn-ghost btn-sm" onclick="AdminCP.openEditContact('${c.id}')"><i class="ph ph-pencil-simple"></i></button><button class="btn btn-ghost btn-sm" style="color:var(--color-danger);" onclick="AdminCP.deleteContact('${c.id}','${Utils.esc(c.name).replace(/'/g,"\\'")}')"><i class="ph ph-trash"></i></button></div></td></tr>`).join('');
+        tbody.replaceChildren(...tmp.childNodes);
+        let pag=document.getElementById('admin-contacts-pagination');
+        if(!pag){
+            pag=document.createElement('div');pag.id='admin-contacts-pagination';
+            pag.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--border-color);font-size:.82rem;background:var(--bg-surface);flex-wrap:wrap;gap:8px;';
+            document.querySelector('#tab-contacts .table-wrap')?.appendChild(pag);
+        }
+        const totalPages=Math.ceil(list.length/perPage)||1;
+        if(totalPages<=1){pag.innerHTML='';return;}
+        const s=(page-1)*perPage+1, e2=Math.min(page*perPage,list.length);
+        const ef=Utils.esc(f);
+        pag.innerHTML=`<span style="color:var(--text-muted);">Showing ${s}–${e2} of ${list.length} contacts</span>
+        <div style="display:flex;gap:4px;">
+            <button onclick="AdminCP._goAdminContactsPage(1,'${ef}')" ${page===1?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-double-left"></i></button>
+            <button onclick="AdminCP._goAdminContactsPage(${page-1},'${ef}')" ${page===1?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-left"></i></button>
+            <span style="padding:3px 10px;background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-sm);font-weight:600;">${page} / ${totalPages}</span>
+            <button onclick="AdminCP._goAdminContactsPage(${page+1},'${ef}')" ${page===totalPages?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-right"></i></button>
+            <button onclick="AdminCP._goAdminContactsPage(${totalPages},'${ef}')" ${page===totalPages?'disabled':''} class="btn btn-ghost btn-sm"><i class="ph ph-caret-double-right"></i></button>
+        </div>`;
+    },
+
+    _goAdminContactsPage(page, filter){
+        this._adminContactsPage=page;
+        this._contactFilter=filter||'';
+        this._doAdminRenderContacts(filter||'');
+    },
+
+    openAddContact(){document.getElementById('admin-contact-form').reset();document.getElementById('admin-contact-id').value='';document.getElementById('admin-contact-modal-title').textContent='Add Contact';document.getElementById('admin-contact-modal').classList.add('active');},
+
+    openEditContact(id){
+        const c=this._allContacts.find(x=>x.id===id);if(!c)return;
+        document.getElementById('admin-contact-id').value=c.id;
+        document.getElementById('admin-contact-name').value=c.name;
+        document.getElementById('admin-contact-email').value=c.email;
+        document.getElementById('admin-contact-phone').value=c.phone||'';
+        document.getElementById('admin-contact-company').value=c.company||'';
+        document.getElementById('admin-contact-status').value=c.status;
+        document.getElementById('admin-contact-notes').value=c.notes||'';
+        document.getElementById('admin-contact-modal-title').textContent='Edit Contact';
+        document.getElementById('admin-contact-modal').classList.add('active');
+    },
+    closeContactModal(){document.getElementById('admin-contact-modal').classList.remove('active');},
+
+    deleteContact(id,name){
+        Confirm.show(`Delete "${name}"? This cannot be undone.`,async()=>{
+            try{await API.deleteContact(id);Utils.showToast('Contact deleted');}
+            catch(e){Utils.showToast(e.message,'error');}
+        },'Delete','btn-danger');
+    },
+
+    async backupData(){
+        try{
+            const data=await API.backup();
+            const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+            const url=URL.createObjectURL(blob),a=document.createElement('a');
+            a.href=url;a.download=`flowcrm-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+            const hist=document.getElementById('backup-history-list');
+            if(hist.querySelector('.empty-state'))hist.innerHTML='';
+            const row=document.createElement('div');row.style.cssText='padding:11px 16px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;font-size:.85rem;';
+            row.innerHTML=`<span><i class="ph ph-file-arrow-down" style="color:var(--color-success);margin-right:6px;"></i>${a.download}</span><span style="color:var(--text-muted);">${data.contacts.length} contacts · ${Utils.fmtTime(Date.now())}</span>`;
+            hist.insertBefore(row,hist.firstChild);
+            Utils.showToast(`Backup downloaded — ${data.contacts.length} contacts`);
+        }catch(e){Utils.showToast(e.message,'error');}
+    },
+
+    async restoreData(file){
+        const r=new FileReader();
+        r.onload=async e=>{
+            try{
+                const data=JSON.parse(e.target.result);
+                if(!data.contacts||!Array.isArray(data.contacts))throw new Error('Invalid format');
+                Confirm.show(`Restore ${data.contacts.length} contacts from backup?`,async()=>{
+                    try{await API.restore(data.contacts);Utils.showToast(`Restored ${data.contacts.length} contacts`);await UI.loadData();}
+                    catch(e2){Utils.showToast(e2.message,'error');}
+                },'Yes, Restore','btn-primary');
+            }catch(e){Utils.showToast('Invalid backup file.','error');}
+            document.getElementById('restore-file-input').value='';
+        };
+        r.readAsText(file);
+    },
+
+    switchTab(tabId){
+        document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+        document.querySelector(`.admin-tab[data-tab="${tabId}"]`).classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+        if(tabId==='tab-overview')this.renderOverview();
+    }
+};
+
+// ── 8. EVENTS ─────────────────────────────────────────
+function setupEvents(){
+    // LOGIN / LOGOUT — disabled in demo
+    // (logout-btn hidden via HTML)
+
+    // NAV
+    document.querySelectorAll('.nav-item[data-target]').forEach(btn=>btn.addEventListener('click',()=>{const t=btn.dataset.target;window.location.hash=t;Router.navigate(t);}));
+    window.addEventListener('hashchange',()=>Router.navigate(window.location.hash));
+
+    // SEARCH
+    document.getElementById('search-contacts').addEventListener('input',e=>{UI._contactsPage=1;UI.renderContacts(e.target.value);});
+
+    // CONTACT FORM
+    document.getElementById('contact-form').addEventListener('submit',async e=>{
+        e.preventDefault();
+        const id=document.getElementById('contact-id').value;if(!id){Utils.showToast('No contact.','error');return;}
+        const ia=AppState.isAdmin();
+        const pl=ia?{name:document.getElementById('contact-name').value.trim(),email:document.getElementById('contact-email').value.trim(),phone:document.getElementById('contact-phone').value.trim(),company:document.getElementById('contact-company').value.trim(),status:document.getElementById('contact-status').value,notes:document.getElementById('contact-notes').value.trim()}:{status:document.getElementById('contact-status').value,notes:document.getElementById('contact-notes').value.trim()};
+        try{await API.updateContact(id,pl);UI.closeContactModal();Utils.showToast('Contact updated');}
+        catch(e){Utils.showToast(e.message,'error');}
+    });
+
+    // KANBAN
+    document.querySelectorAll('.kanban-column').forEach(col=>{
+        col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('drag-over');});
+        col.addEventListener('dragleave',()=>col.classList.remove('drag-over'));
+        col.addEventListener('drop',async e=>{
+            e.preventDefault();col.classList.remove('drag-over');
+            const cid=e.dataTransfer.getData('text/plain'),status=col.dataset.status;if(!cid)return;
+            const contact=AppState.contacts.find(c=>c.id===cid);
+            if(contact&&contact.status!==status){try{await API.updateContact(cid,{status});Utils.showToast(`Moved to ${status}`);}catch(e){Utils.showToast(e.message,'error');}}
+        });
+    });
+
+    // MOBILE MENU
+    document.getElementById('mobile-menu-btn').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+
+    // ADMIN TABS
+    document.querySelectorAll('.admin-tab').forEach(tab=>tab.addEventListener('click',()=>AdminCP.switchTab(tab.dataset.tab)));
+
+    // ADMIN ADD USER
+    document.getElementById('admin-add-user-form').addEventListener('submit',async e=>{
+        e.preventDefault();
+        const email=document.getElementById('new-user-email').value.trim();
+        const pwd=document.getElementById('new-user-password').value;
+        const role=document.getElementById('new-user-role').value;
+        const active=document.getElementById('new-user-active').value==='true';
+        if(!email||!pwd){Utils.showToast('Email and password required.','warning');return;}
+        if(pwd.length<6){Utils.showToast('Password min 6 chars.','warning');return;}
+        try{await API.createUser({email,password:pwd,role,active});AdminCP.closeAddUserModal();Utils.showToast(`Account created: ${email}`);}
+        catch(e){Utils.showToast(e.message,'error');}
+    });
+
+    // ADMIN EDIT USER
+    document.getElementById('admin-edit-user-form').addEventListener('submit',async e=>{
+        e.preventDefault();
+        const key=document.getElementById('edit-user-email-key').value;
+        const pwd=document.getElementById('edit-user-password').value;
+        const role=document.getElementById('edit-user-role').value;
+        const active=document.getElementById('edit-user-active').value==='true';
+        if(pwd&&pwd.length<6){Utils.showToast('Password min 6 chars.','warning');return;}
+        const pl={role,active};if(pwd)pl.password=pwd;
+        try{await API.updateUser(key,pl);AdminCP.closeEditUserModal();if(key===AppState.user.email){AppState.user.role=role;Router.showApp();}Utils.showToast('User updated');}
+        catch(e){Utils.showToast(e.message,'error');}
+    });
+
+    // ADMIN CONTACT FORM
+    document.getElementById('admin-contact-form').addEventListener('submit',async e=>{
+        e.preventDefault();
+        const id=document.getElementById('admin-contact-id').value;
+        const pl={id:id||undefined,name:document.getElementById('admin-contact-name').value.trim(),email:document.getElementById('admin-contact-email').value.trim(),phone:document.getElementById('admin-contact-phone').value.trim(),company:document.getElementById('admin-contact-company').value.trim(),status:document.getElementById('admin-contact-status').value,notes:document.getElementById('admin-contact-notes').value.trim()};
+        try{if(id)await API.updateContact(id,pl);else await API.createContact(pl);AdminCP.closeContactModal();Utils.showToast(id?'Contact updated':'Contact added');}
+        catch(e){Utils.showToast(e.message,'error');}
+    });
+
+    // ADMIN CONTACT SEARCH
+    document.getElementById('admin-search-contacts').addEventListener('input',e=>{AdminCP._contactFilter=e.target.value;AdminCP._adminContactsPage=1;AdminCP.renderContacts(e.target.value);});
+
+    // RESTORE
+    document.getElementById('restore-file-input').addEventListener('change',e=>{const f=e.target.files[0];if(f)AdminCP.restoreData(f);});
+
+    // LEAD UPLOAD CSV
+    document.getElementById('csv-file-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const res=AdminCP.parseCSV(ev.target.result);AdminCP.stageLeads(res.leads,res.errors);};r.readAsText(f);});
+    // LEAD UPLOAD JSON
+    document.getElementById('json-leads-file-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{let d=JSON.parse(ev.target.result);if(!Array.isArray(d))d=d.contacts||d.leads||[];const vs=['New','Contacted','Qualified','Call Back','Won','Lost'],leads=[],errors=[];d.forEach((item,i)=>{if(!item.name||!item.email){errors.push(`Item ${i+1}: missing name/email`);return;}leads.push({name:item.name,email:item.email,phone:item.phone||'',company:item.company||'',status:vs.includes(item.status)?item.status:'New',notes:item.notes||''});});AdminCP.stageLeads(leads,errors);}catch(e){Utils.showToast('Invalid JSON.','error');}};r.readAsText(f);});
+    // LEAD UPLOAD MANUAL
+    document.getElementById('manual-leads-input').addEventListener('blur',e=>{const txt=e.target.value.trim();if(!txt)return;const res=AdminCP.parseManualText(txt);AdminCP.stageLeads(res.leads,res.errors);});
+    // CSV DROPZONE
+    const dz=document.getElementById('csv-dropzone');
+    if(dz){dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--color-primary)';dz.style.background='rgba(59,130,246,.05)';});dz.addEventListener('dragleave',()=>{dz.style.borderColor='';dz.style.background='';});dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';dz.style.background='';const f=e.dataTransfer.files[0];if(f&&f.name.toLowerCase().endsWith('.csv')){const r=new FileReader();r.onload=ev=>{const res=AdminCP.parseCSV(ev.target.result);AdminCP.stageLeads(res.leads,res.errors);};r.readAsText(f);}else if(f)Utils.showToast('Please drop a CSV file.','warning');});}
+
+    // MODAL BACKDROP
+    document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
+    document.getElementById('confirm-no').onclick=()=>document.getElementById('confirm-modal').classList.remove('active');
+}
+
+// ── THEME TOGGLE ──────────────────────────────────────
+const Theme = {
+    _key: 'crm_theme',
+    init() {
+        const saved = localStorage.getItem(this._key);
+        if (saved === 'light') this._apply('light');
+        else this._apply('dark');
+    },
+    toggle() {
+        const isLight = document.body.classList.contains('light');
+        this._apply(isLight ? 'dark' : 'light');
+    },
+    _apply(mode) {
+        const icon = document.getElementById('theme-icon');
+        if (mode === 'light') {
+            document.body.classList.add('light');
+            if (icon) { icon.className = 'ph ph-moon'; }
+            localStorage.setItem(this._key, 'light');
+        } else {
+            document.body.classList.remove('light');
+            if (icon) { icon.className = 'ph ph-sun'; }
+            localStorage.setItem(this._key, 'dark');
+        }
+    }
+};
+document.getElementById('theme-toggle-btn').addEventListener('click', () => Theme.toggle());
+Theme.init();
+
+// ── DEMO SWITCH ───────────────────────────────────────
+const DemoSwitch = {
+    toggle() {
+        const wasAdmin = AppState.isAdmin();
+        if (wasAdmin) {
+            // Switch to user panel
+            AppState.user = DemoStore._users.find(u=>u.role==='user'&&u.active) || DemoStore._users[1];
+        } else {
+            // Switch to admin panel
+            AppState.user = DemoStore._users.find(u=>u.role==='admin') || DemoStore._users[0];
+        }
+        AppState._contactMap = new Map();
+        UI.loadData().then(()=>Router.showApp());
+    },
+    updateBtn() {
+        const isAdmin = AppState.isAdmin();
+        const sideBtn = document.getElementById('panel-switch-btn');
+        const topBtn  = document.getElementById('topbar-switch-btn');
+        if (sideBtn) {
+            sideBtn.style.display = '';
+            sideBtn.title = isAdmin ? 'Switch to User Panel' : 'Switch to Admin Panel';
+            sideBtn.innerHTML = isAdmin
+                ? '<i class="ph ph-user" style="color:var(--color-primary);"></i>'
+                : '<i class="ph ph-shield-check" style="color:var(--color-accent);"></i>';
+        }
+        if (topBtn) {
+            topBtn.style.display = '';
+            topBtn.innerHTML = isAdmin
+                ? '<i class="ph ph-user"></i> View as User'
+                : '<i class="ph ph-shield-check"></i> View as Admin';
+            topBtn.style.color = isAdmin ? 'var(--color-primary)' : 'var(--color-accent)';
+            topBtn.style.borderColor = isAdmin ? 'rgba(0,212,255,0.25)' : 'rgba(255,107,53,0.3)';
+            topBtn.style.background  = isAdmin ? 'rgba(0,212,255,0.08)' : 'rgba(255,107,53,0.08)';
+        }
+    }
+};
+
+// ── 9. BOOT ───────────────────────────────────────────
+async function boot(){
+    setupEvents();
+    // Demo: boot directly as admin
+    AppState.user = DemoStore._users.find(u=>u.role==='admin');
+    AppState._contactMap = new Map();
+    await UI.loadData();
+    Router.showApp();
+}
+boot();
+</script>
+</body>
+</html>
